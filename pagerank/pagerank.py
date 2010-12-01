@@ -1,6 +1,7 @@
 import numpy as np
 import time, sys
 import parallel, bicgstab
+import mappedfilereader
 from mpi4py import MPI
 
 # Read in the data from a file:
@@ -39,7 +40,15 @@ if __name__ == '__main__':
 
     if master:
         # read G from file and find PageRank:
-        n, G, urls = from_file('./output-biit.txt')
+        #n, G, urls = from_file('./output-biit.txt')
+	
+	# TODO test
+	mapName = '../data/Map for crawledResults5.txt.txt' 
+	mappedName = '../data/Mapped version of crawledResults5.txt.txt'
+
+	r = MatReader(mapName, mappedName)
+	n, G = r.read()
+
         print 'n:', n
         #print urls
         #outdeg = np.ravel(np.sum(G, axis=0)) # column sums
