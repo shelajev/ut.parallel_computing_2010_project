@@ -1,0 +1,396 @@
+190 http://biit.cs.ut.ee/~vilo/
+ 1
+197 http://biit.cs.ut.ee/~ilmjarv/style.css
+
+196 http://biit.cs.ut.ee/~ilmjarv/
+ 196 196 196 196 196 196 196 196 196 196 197
+195 http://biit.cs.ut.ee/~ilmjarv
+ 196
+158 http://biit.cs.ut.ee/~adler/
+ 160 59 18 159 20
+57 http://biit.cs.ut.ee/vishic/
+
+50 http://biit.cs.ut.ee/vishic
+
+30 http://biit.cs.ut.ee/user/password
+ 30 30 77 77 1 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+70 http://biit.cs.ut.ee/user/login
+ 30 77 1 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+95 http://biit.cs.ut.ee/user/kt
+ 30 29 28 27 26 25 24 23 22 21 14 13 1 12 11 10 9 8 7 6 5 4 3
+77 http://biit.cs.ut.ee/user
+ 30 77 77 1 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+128 http://biit.cs.ut.ee/urlmap/ui/urlmap.css
+
+131 http://biit.cs.ut.ee/urlmap/tutorial.pdf
+
+129 http://biit.cs.ut.ee/urlmap/category.cgi
+
+52 http://biit.cs.ut.ee/urlmap/
+ 131 130 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 129 52 52 52 52 52 52 52 52 52 52 128
+184 http://biit.cs.ut.ee/urlmap
+ 52
+189 http://biit.cs.ut.ee/u/vilo
+ 190
+157 http://biit.cs.ut.ee/u/adler/
+ 158
+188 http://biit.cs.ut.ee/u/adler
+ 158
+25 http://biit.cs.ut.ee/teaching
+ 76 81 80 79 73 194 193 1 30 29 28 27 26 25 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+114 http://biit.cs.ut.ee/taxonomy/term/8/0/feed
+
+111 http://biit.cs.ut.ee/taxonomy/term/7/0/feed
+
+92 http://biit.cs.ut.ee/taxonomy/term/6/0/feed
+
+106 http://biit.cs.ut.ee/taxonomy/term/4/0/feed
+
+116 http://biit.cs.ut.ee/taxonomy/term/38/0/feed
+
+113 http://biit.cs.ut.ee/taxonomy/term/36/0/feed
+
+103 http://biit.cs.ut.ee/taxonomy/term/35/0/feed
+
+96 http://biit.cs.ut.ee/taxonomy/term/34/0/feed
+
+110 http://biit.cs.ut.ee/taxonomy/term/28/0/feed
+
+99 http://biit.cs.ut.ee/taxonomy/term/26/0/feed
+
+90 http://biit.cs.ut.ee/taxonomy/term/19/0/feed
+
+112 http://biit.cs.ut.ee/taxonomy/term/18/0/feed
+
+115 http://biit.cs.ut.ee/taxonomy/term/17/0/feed
+
+82 http://biit.cs.ut.ee/taxonomy/term/14/0/feed
+
+60 http://biit.cs.ut.ee/taxonomy/term/13/0/feed
+
+78 http://biit.cs.ut.ee/taxonomy/term/10/0/feed
+
+76 http://biit.cs.ut.ee/tags/workshop
+ 64 76 76 75 74 73 72 64 25 76 76 81 80 79 73 25 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 78
+101 http://biit.cs.ut.ee/tags/transcription
+ 102 87 101 101 86 102 100 87 101 101 86 100 107 101 101 109 108 107 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 106
+94 http://biit.cs.ut.ee/tags/tips-and-tricks-know-how
+ 87 94 94 73 98 97 87 94 94 73 97 93 87 94 94 83 80 73 93 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 96
+75 http://biit.cs.ut.ee/tags/talks
+ 64 76 75 75 74 73 72 64 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 113
+81 http://biit.cs.ut.ee/tags/statistics
+ 89 87 81 81 80 89 88 87 81 81 80 88 84 87 81 81 86 80 85 84 81 81 83 80 74 73 72 71 25 76 81 81 80 79 73 25 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 82
+55 http://biit.cs.ut.ee/tags/software
+ 14 16 55 55 14 55 55 62 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 60
+86 http://biit.cs.ut.ee/tags/papers
+ 102 87 101 86 86 102 100 87 101 86 86 100 84 87 81 86 86 80 85 84 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 99
+83 http://biit.cs.ut.ee/tags/mathematics
+ 105 87 83 83 105 93 87 94 83 83 80 73 93 81 83 83 80 74 73 72 71 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 112
+80 http://biit.cs.ut.ee/tags/machine-learning
+ 89 87 81 80 80 89 88 87 81 80 80 88 84 87 81 86 80 80 85 84 93 87 94 83 80 80 73 93 81 83 80 80 74 73 72 71 25 76 81 80 80 79 73 25 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 92
+79 http://biit.cs.ut.ee/tags/literature
+ 91 79 79 74 91 25 76 81 80 79 79 73 25 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 90
+74 http://biit.cs.ut.ee/tags/links
+ 91 79 74 74 91 64 76 75 74 74 73 72 64 81 83 80 74 74 73 72 71 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 114
+73 http://biit.cs.ut.ee/tags/computer-science
+ 87 94 73 73 98 97 87 94 73 73 97 93 87 94 83 80 73 73 93 64 76 75 74 73 73 72 64 81 83 80 74 73 73 72 71 25 76 81 80 79 73 73 25 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 115
+72 http://biit.cs.ut.ee/tags/biology
+ 64 76 75 74 73 72 72 64 81 83 80 74 73 72 72 71 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 116
+108 http://biit.cs.ut.ee/tags/alternative-splicing
+ 107 101 109 108 108 107 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 111
+91 http://biit.cs.ut.ee/story/2006/01/19/recommended-reading
+ 70 79 74 95 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+16 http://biit.cs.ut.ee/software/tutorials
+ 176 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+15 http://biit.cs.ut.ee/software/releasenotes
+ 53 17 44 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+38 http://biit.cs.ut.ee/software/
+ 55 54 53 52 51 50 49 20 48 47 46 45 44 44 18 43 32 16 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+14 http://biit.cs.ut.ee/software
+ 55 54 53 52 51 50 49 20 48 47 46 45 44 44 18 43 32 16 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 14 13 1 12 11 10 9 8 7 6 5 4 3
+10 http://biit.cs.ut.ee/sites/all/themes/barlow/typography.css
+
+12 http://biit.cs.ut.ee/sites/all/themes/barlow/style.css
+
+11 http://biit.cs.ut.ee/sites/all/themes/barlow/layout.css
+
+58 http://biit.cs.ut.ee/publications/AL_get(this,%20&
+ 1 12 11 10 9 8 7 6 5 4 3
+39 http://biit.cs.ut.ee/publications/
+ 18 18 20 59 58 57 37 17 56 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+21 http://biit.cs.ut.ee/publications
+ 18 18 20 59 198 57 37 17 56 1 30 29 28 27 26 25 24 23 22 21 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+105 http://biit.cs.ut.ee/personal-blog-entry/2006/11/23/a-brief-introduction-to-matrix-algebra
+ 70 87 83 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+98 http://biit.cs.ut.ee/personal-blog-entry/2006/10/10/scilab-pvm
+ 70 87 94 73 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+84 http://biit.cs.ut.ee/personal-blog-entry/2006/07/04/latent-process-decomposition
+ 70 87 81 86 80 85 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+100 http://biit.cs.ut.ee/personal-blog-entry/2006/06/20/apriori-revisited
+ 70 87 101 86 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+102 http://biit.cs.ut.ee/personal-blog-entry/2006/06/18/an-improved-map-of-conserved-regulatory-sites
+ 70 87 101 86 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+88 http://biit.cs.ut.ee/personal-blog-entry/2006/05/13/roc-area-under-curve-explained
+ 70 87 81 80 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+89 http://biit.cs.ut.ee/personal-blog-entry/2006/02/07/the-true-value-of-p-value
+ 70 87 81 80 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+179 http://biit.cs.ut.ee/page/2007/01/10/regulatory-sequence-motif-discovery-minutes
+ 30 29 28 27 26 25 24 23 22 21 14 13 1 12 11 10 9 8 7 6 5 4 3
+178 http://biit.cs.ut.ee/page/2006/12/13/oreganno-jamboree-minutes
+ 30 29 28 27 26 25 24 23 22 21 14 13 1 12 11 10 9 8 7 6 5 4 3
+26 http://biit.cs.ut.ee/node/460
+ 1 30 29 28 27 26 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+171 http://biit.cs.ut.ee/node/451
+ 1 30 29 28 27 26 25 24 175 174 173 172 171 171 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+71 http://biit.cs.ut.ee/node/446
+ 70 81 83 80 74 73 72 27 64 27 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 27 64
+177 http://biit.cs.ut.ee/node/359
+ 70 175 175 175 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 175 175
+93 http://biit.cs.ut.ee/node/300
+ 70 87 94 83 80 73 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+97 http://biit.cs.ut.ee/node/299
+ 70 87 94 73 87 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+9 http://biit.cs.ut.ee/modules/user/user.css
+
+61 http://biit.cs.ut.ee/modules/taxonomy/taxonomy.css
+
+7 http://biit.cs.ut.ee/modules/system/system.css
+
+8 http://biit.cs.ut.ee/modules/system/system-menus.css
+
+6 http://biit.cs.ut.ee/modules/system/defaults.css
+
+5 http://biit.cs.ut.ee/modules/node/node.css
+
+4 http://biit.cs.ut.ee/modules/book/book.css
+
+187 http://biit.cs.ut.ee/mem/index.cgi
+ 130 189 188 1 186 187 187 187 187 187 187 187 187 187 187 32 32 32 32 32 46 187 187 32 186 185 184 17 50 19 183 182 130
+185 http://biit.cs.ut.ee/mem/help/mem_ismb_2009.pdf
+
+186 http://biit.cs.ut.ee/mem/help/help.html
+ 130 189 188 192 192 182 46 186 186 187 184 17 50 19 183 182 130
+192 http://biit.cs.ut.ee/mem/help/
+
+32 http://biit.cs.ut.ee/mem/
+ 130 189 188 1 186 187 187 187 187 187 32 32 32 32 32 32 32 32 32 32 46 187 32 32 186 185 184 17 50 19 183 182 130
+17 http://biit.cs.ut.ee/mem
+ 32
+62 http://biit.cs.ut.ee/links/worldwide
+ 55 1 30 29 28 66 62 62 65 64 63 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+27 http://biit.cs.ut.ee/links/main
+ 70 65 71 64 63 65 1 30 29 28 66 62 65 64 63 27 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 65
+66 http://biit.cs.ut.ee/links/hpc
+ 1 30 29 28 66 66 62 65 64 63 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+64 http://biit.cs.ut.ee/links/courses
+ 70 76 75 74 73 72 71 27 63 27 1 30 29 28 66 62 65 64 64 63 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 71 27 63
+63 http://biit.cs.ut.ee/links/bioinformatics-readings
+ 70 64 27 65 117 27 1 30 29 28 66 62 65 64 63 63 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 64 27 65
+65 http://biit.cs.ut.ee/links/advice
+ 70 63 27 27 27 1 30 29 28 66 62 65 65 64 63 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 63 27 27
+118 http://biit.cs.ut.ee/link/ui/link.css
+
+53 http://biit.cs.ut.ee/link/
+ 1 118
+155 http://biit.cs.ut.ee/kegganim/index.cgi
+ 1 157 20 1 156 154 154 155 155 154 154 154 154 154
+156 http://biit.cs.ut.ee/kegganim/images/KEGGanim_figure_ishemia.gif
+
+154 http://biit.cs.ut.ee/kegganim/
+ 1 157 20 1 156 154 154 154 154 155 154 154 154 154 154 154 154 154 154 154
+183 http://biit.cs.ut.ee/kegganim
+ 154
+68 http://biit.cs.ut.ee/graphweb/welcome.cgi
+ 1 59 68 68 69 68 68 68 68 68 68 59 59 67
+67 http://biit.cs.ut.ee/graphweb/style.css
+
+69 http://biit.cs.ut.ee/graphweb/overview.html
+ 59 59 59 59 59 59 68
+59 http://biit.cs.ut.ee/graphweb/
+ 1 59 59 68 68 44 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 69 68 68 68 59 59 59 59 67
+19 http://biit.cs.ut.ee/graphweb
+ 59
+162 http://biit.cs.ut.ee/gprofiler_beta/welcome.cgi
+
+161 http://biit.cs.ut.ee/gprofiler_beta/style.css
+
+168 http://biit.cs.ut.ee/gprofiler_beta/sorter.cgi
+
+163 http://biit.cs.ut.ee/gprofiler_beta/index.cgi
+ 1 18 163 163 163 163 163 163 163 163 152 152 152 152 152 153 19 152 162 162 162 167 166 165 164 163 163 162 161
+166 http://biit.cs.ut.ee/gprofiler_beta/gsorter.cgi
+ 1 18 168 162 162 162 167 166 166 165 164 163 162 161
+167 http://biit.cs.ut.ee/gprofiler_beta/gorth.cgi
+ 1 18 165 167 167 162 162 162 167 167 166 165 164 163 162 161
+165 http://biit.cs.ut.ee/gprofiler_beta/gconvert.cgi
+ 1 18 162 165 165 162 162 162 167 166 165 165 164 163 162 161
+164 http://biit.cs.ut.ee/gprofiler_beta/gcocoa.cgi
+ 1 18 162 162 162 167 166 165 164 164 163 162 161
+152 http://biit.cs.ut.ee/gprofiler_beta/
+ 1 18 163 163 163 163 152 152 152 152 152 152 152 152 152 152 153 19 152 152 162 162 162 167 166 165 164 163 162 161
+150 http://biit.cs.ut.ee/gprofiler/welcome.cgi
+ 1 18 48 47 46 44 150 150 150 150 150 150 150 150 47 48 46 45 44 150 150 149
+149 http://biit.cs.ut.ee/gprofiler/style.css
+
+151 http://biit.cs.ut.ee/gprofiler/sorter.cgi
+
+44 http://biit.cs.ut.ee/gprofiler/index.cgi
+ 1 18 44 44 44 44 44 44 44 44 18 18 18 18 18 153 19 152 150 150 150 47 48 46 45 44 44 150 149
+48 http://biit.cs.ut.ee/gprofiler/gsorter.cgi
+ 1 18 151 150 150 150 47 48 48 46 45 44 150 149
+47 http://biit.cs.ut.ee/gprofiler/gorth.cgi
+ 1 18 46 47 47 150 150 150 47 47 48 46 45 44 150 149
+46 http://biit.cs.ut.ee/gprofiler/gconvert.cgi
+ 1 18 150 46 46 150 150 150 47 48 46 46 45 44 150 149
+45 http://biit.cs.ut.ee/gprofiler/gcocoa.cgi
+ 1 18 150 150 150 47 48 46 45 45 44 150 149
+18 http://biit.cs.ut.ee/gprofiler/
+ 1 18 18 44 44 44 44 18 18 18 18 18 18 18 18 18 18 153 19 152 150 150 150 47 48 46 45 44 150 149
+182 http://biit.cs.ut.ee/gprofiler
+ 18
+142 http://biit.cs.ut.ee/gmat/web/
+
+141 http://biit.cs.ut.ee/gmat/style.css
+
+143 http://biit.cs.ut.ee/gmat/gmat-web.zip
+
+144 http://biit.cs.ut.ee/gmat/gmat-supplementary.pdf
+
+148 http://biit.cs.ut.ee/gmat/gmat-supplementary-cd.zip
+
+145 http://biit.cs.ut.ee/gmat/gmat-scilab.zip
+
+147 http://biit.cs.ut.ee/gmat/gmat-master-thesis.pdf
+
+146 http://biit.cs.ut.ee/gmat/gmat-ismb2007-poster.pdf
+
+51 http://biit.cs.ut.ee/gmat/
+ 148 147 146 145 144 143 142 51 51 141
+169 http://biit.cs.ut.ee/fungenes/style.css
+
+43 http://biit.cs.ut.ee/fungenes/
+ 169
+37 http://biit.cs.ut.ee/fungenes
+ 43
+160 http://biit.cs.ut.ee/front-page
+ 1 12 11 10 9 8 7 6 5 4 3
+41 http://biit.cs.ut.ee/files/TartuMapBusLiivi.PNG
+
+42 http://biit.cs.ut.ee/files/Tartu%20Map%20v2.PNG
+ 1 12 11 10 9 8 7 6 5 4 3
+33 http://biit.cs.ut.ee/files/2009%20BIIT%20postdoc%20and%20phd.pdf
+ 1 12 11 10 9 8 7 6 5 4 3
+40 http://biit.cs.ut.ee/files/2008%20ISMB%20Postdoc%20in%20Bioinformatics.pdf
+ 1 12 11 10 9 8 7 6 5 4 3
+31 http://biit.cs.ut.ee/files/2006_10_BIIT_poster_en%20oo%20convert.pdf
+ 1 12 11 10 9 8 7 6 5 4 3
+3 http://biit.cs.ut.ee/favicon.ico
+
+176 http://biit.cs.ut.ee/ebiroadshow2009
+ 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+181 http://biit.cs.ut.ee/calendar/topics0708
+ 1 12 11 10 9 8 7 6 5 4 3
+175 http://biit.cs.ut.ee/calendar/guest_lectures
+ 70 177 177 177 176 1 30 29 28 27 26 25 24 175 175 174 173 172 171 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 177
+35 http://biit.cs.ut.ee/calendar/2010/
+ 70 1 30 29 28 27 26 25 24 175 174 173 172 171 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+23 http://biit.cs.ut.ee/calendar/2010
+ 70 1 30 29 28 27 26 25 24 175 174 173 172 171 170 23 23 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+34 http://biit.cs.ut.ee/calendar/2009/
+ 176 1 30 29 28 27 26 25 24 175 174 173 172 171 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+170 http://biit.cs.ut.ee/calendar/2009
+ 176 1 30 29 28 27 26 25 24 175 174 173 172 171 170 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+172 http://biit.cs.ut.ee/calendar/2008
+ 177 1 30 29 28 27 26 25 24 175 174 173 172 172 171 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+173 http://biit.cs.ut.ee/calendar/2007
+ 70 182 181 21 180 1 30 29 28 27 26 25 24 175 174 173 173 172 171 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+174 http://biit.cs.ut.ee/calendar/2006
+ 70 179 178 1 30 29 28 27 26 25 24 175 174 174 173 172 171 170 23 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+2 http://biit.cs.ut.ee/blogapi/rsd
+
+87 http://biit.cs.ut.ee/blog/kt
+ 89 81 80 89 88 81 80 88 102 101 86 102 100 101 86 100 84 81 86 80 85 84 94 73 98 105 83 105 97 94 73 97 93 94 83 80 73 93 29 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 104
+191 http://biit.cs.ut.ee/blog/feed
+
+104 http://biit.cs.ut.ee/blog/2/feed
+
+29 http://biit.cs.ut.ee/blog
+ 89 87 81 80 89 88 87 81 80 88 102 87 101 86 102 100 87 101 86 100 84 87 81 86 80 85 84 87 94 73 98 105 87 83 105 97 87 94 73 97 93 87 94 83 80 73 93 1 30 29 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3 191
+117 http://biit.cs.ut.ee/biit/books
+ 70 79 74 95 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+85 http://biit.cs.ut.ee/biit-projects/fungenes
+ 84 87 81 86 80 85 85 84 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 103
+109 http://biit.cs.ut.ee/biit-projects/atd
+ 107 101 109 109 108 107 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 61 9 8 7 6 5 4 3 110
+107 http://biit.cs.ut.ee/atd
+ 70 101 109 108 1 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+22 http://biit.cs.ut.ee/about/people
+ 182 195 157 40 40 1 30 29 28 27 26 25 24 23 22 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+13 http://biit.cs.ut.ee/about/main
+ 42 41 1 24 40 22 39 38 37 36 20 18 32 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 13 1 12 11 10 9 8 7 6 5 4 3 2
+24 http://biit.cs.ut.ee/about/grants
+ 32 1 30 29 28 27 26 25 24 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+28 http://biit.cs.ut.ee/about/contacts
+ 42 41 1 1 30 29 28 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 12 11 10 9 8 7 6 5 4 3
+126 http://biit.cs.ut.ee/SWOG/tere
+
+125 http://biit.cs.ut.ee/SWOG/riin
+
+127 http://biit.cs.ut.ee/SWOG/index.cgi
+ 127 127 126 54 54 54 54 54 54 54 54 125 124 124 124 124 124 123 122 121 120 54 119 119
+123 http://biit.cs.ut.ee/SWOG/history.html
+
+119 http://biit.cs.ut.ee/SWOG/favicon.ico
+
+134 http://biit.cs.ut.ee/SWOG/doc/swog.pl_en.html
+ 133 133 133 136
+135 http://biit.cs.ut.ee/SWOG/doc/points_en.html
+ 121 121 121 121 121 121 121 121
+124 http://biit.cs.ut.ee/SWOG/doc/perl_en.html
+ 133 133 132
+120 http://biit.cs.ut.ee/SWOG/doc/manual_en.html
+ 124 121 135 121 121 121 133 133 133 134 124
+136 http://biit.cs.ut.ee/SWOG/doc/manual.css
+
+121 http://biit.cs.ut.ee/SWOG/doc/doc_en.html
+ 133 135 133 135 135 133 133 140 139 138 137 133 133 133 135 133 135 133 133 135 135 133 133 135 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 135 130 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 133 132
+132 http://biit.cs.ut.ee/SWOG/doc/doc.css
+
+138 http://biit.cs.ut.ee/SWOG/doc/T2
+
+140 http://biit.cs.ut.ee/SWOG/doc/T1
+
+137 http://biit.cs.ut.ee/SWOG/doc/A2
+
+139 http://biit.cs.ut.ee/SWOG/doc/A1
+
+133 http://biit.cs.ut.ee/SWOG/doc/
+
+122 http://biit.cs.ut.ee/SWOG/dist/swog1.1pre37.tar.gz
+
+54 http://biit.cs.ut.ee/SWOG/
+ 127 126 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 125 124 124 124 124 124 123 122 121 120 54 54 119 119
+159 http://biit.cs.ut.ee/MEM/
+ 32
+20 http://biit.cs.ut.ee/KEGGanim/
+ 154
+153 http://biit.cs.ut.ee/KEGGanim
+ 154
+180 http://biit.cs.ut.ee/KEGGAnim
+ 154
+49 http://biit.cs.ut.ee/GraphWeb/
+ 59
+36 http://biit.cs.ut.ee/GraphWeb
+ 59
+198 http://biit.cs.ut.ee/AL_get(this,%20&
+ 1 12 11 10 9 8 7 6 5 4 3
+193 http://biit.cs.ut.ee/2004/dm-seminar-spring/
+ 1 12 11 10 9 8 7 6 5 4 3
+194 http://biit.cs.ut.ee/2003/dm-seminar-fall/
+ 1 12 11 10 9 8 7 6 5 4 3
+56 http://biit.cs.ut.ee//dx.doi.org/doi:10.1007/978-3-642-12476-1_10
+ 1 12 11 10 9 8 7 6 5 4 3
+1 http://biit.cs.ut.ee/
+ 42 41 1 1 24 40 22 39 38 37 36 20 18 32 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 1 1 12 11 10 9 8 7 6 5 4 3 2
+130 http://biit.cs.ut.ee
+
