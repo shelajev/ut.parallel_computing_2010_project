@@ -11,7 +11,7 @@ class MatReader:
 		val = 1
 		return col, row
 
-		# return full matrix
+		# return full matrix and the number of lines
 	def read(self):
 		f = open(self.mappedName,'r')
 		G = np.matrix(np.zeros(self.n*self.n,dtype=np.uint32).reshape(self.n,self.n)) # adjacency matrix
@@ -22,40 +22,17 @@ class MatReader:
 		return self.n, G
 
 
-	# TODO cleanup
-	# mapFileName - indexed URLS file
-	# mappedFileName - associated indices file
+	# mapFileName - indexed URLS file  ( "i	url\n" )
+	# mappedFileName - associated indices file ( "i	j\n" )
 	def __init__(self,mapFileName,mappedFileName, numberOfProcesses):
 		f1 = open(mapFileName,'r')
 		rows_cols = 0
 		for line in f1:
 			rows_cols += 1
 		f1.close()
-#		print "row_cols", rows_cols
-#		print "num procs", numberOfProcesses
-#		print "row_cols % numProcs", rows_cols % numberOfProcesses
 
 		if (rows_cols % numberOfProcesses != 0): # if number of lines is not divisible by proc. count then make it so
 			rows_cols = ( rows_cols/numberOfProcesses + 1) * numberOfProcesses
 
 		self.n = rows_cols
 		self.mappedName = mappedFileName
-		
-		
-
-#------------------------------
-"""
-mapName = '../data/Map for crawledResults5.txt.txt' 
-mappedName = '../data/Mapped version of crawledResults5.txt.txt'
-
-mapName = '../data/Map for crawledResults1.txt.txt' 
-mappedName = '../data/Mapped version of crawledResults1.txt.txt'
-print "creating reader..."
-r = MatReader(mapName, mappedName, 6)
-print "reader created"
-
-print "reading..."
-n, G = r.read()
-print "n=",n
-print "reading done"
-"""

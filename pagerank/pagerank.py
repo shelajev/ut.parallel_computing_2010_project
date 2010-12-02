@@ -4,6 +4,8 @@ import parallel, bicgstab
 import mappedfilereader
 from mpi4py import MPI
 
+
+# Not used
 # Read in the data from a file:
 def from_file(filename):
     file = open(filename, 'r')
@@ -43,8 +45,7 @@ if __name__ == '__main__':
         # read G from file and find PageRank:
         #n, G, urls = from_file('./output-biit.txt')
 	
-	# TODO test
-	#data provided by Eero
+	#data provided by Eero, http://www.ut.ee/~eero/PC/ComputerClasses/CrawledResults.zip
 	mapName = '../data/Map for crawledResults1.txt.txt' 
 	mappedName = '../data/Mapped version of crawledResults1.txt.txt'
 
