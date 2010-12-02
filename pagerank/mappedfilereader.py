@@ -1,17 +1,6 @@
 #encoding=utf-8
 import numpy as np
 
-# TODO 1 test this class read() locally
-# TODO 2 test this class read() globally
-""" ../data/
-crawledResults1.txt 
-crawledResults5.txt 
-Map for crawledResults1.txt.txt 
-Map for crawledResults5.txt.txt 
-Mapped version of crawledResults1.txt.txt 
-Mapped version of crawledResults5.txt.txt 
-"""
-
 
 class MatReader:
 	def _line2el(self,line):
@@ -25,44 +14,48 @@ class MatReader:
 		# return full matrix
 	def read(self):
 		f = open(self.mappedName,'r')
-		G = np.matrix(np.zeros(self.n*self.n,dtype=np.uint32).reshape(n,n)) # adjacency matrix
+		G = np.matrix(np.zeros(self.n*self.n,dtype=np.uint32).reshape(self.n,self.n)) # adjacency matrix
 		for line in f:
 			col, row = self._line2el(line)
-			print "col, row",col, row
-			G[int(c)-1,int(id)-1] = 1; # TODO check indices
+#			print "col, row",col, row
+			G[row,col] = 1; # TODO check indices
 		return self.n, G
 
 
 	# TODO cleanup
 	# mapFileName - indexed URLS file
 	# mappedFileName - associated indices file
-	def __init__(self,mapFileName,mappedFileName):
+	def __init__(self,mapFileName,mappedFileName, numberOfProcesses):
 		f1 = open(mapFileName,'r')
 		rows_cols = 0
 		for line in f1:
 			rows_cols += 1
 		f1.close()
-		f2 = open(mappedFileName, 'r')
-		
-		vals = 0
-		for line in f2:
-			vals += 1
-		f2.close()
+#		print "row_cols", rows_cols
+#		print "num procs", numberOfProcesses
+#		print "row_cols % numProcs", rows_cols % numberOfProcesses
 
-		rows = rows_cols
-		cols = rows_cols
-		
+		if (rows_cols % numberOfProcesses != 0): # if number of lines is not divisible by proc. count then make it so
+			rows_cols = ( rows_cols/numberOfProcesses + 1) * numberOfProcesses
+
 		self.n = rows_cols
-		print "cols rows vals",cols,rows,vals
 		self.mappedName = mappedFileName
 		
 		
 
 #------------------------------
 """
-mapName = 'data/Map for crawledResults5.txt.txt' 
-mappedName = 'data/Mapped version of crawledResults5.txt.txt'
+mapName = '../data/Map for crawledResults5.txt.txt' 
+mappedName = '../data/Mapped version of crawledResults5.txt.txt'
 
-r = MatReader(mapName, mappedName)
-A = r.read()
+mapName = '../data/Map for crawledResults1.txt.txt' 
+mappedName = '../data/Mapped version of crawledResults1.txt.txt'
+print "creating reader..."
+r = MatReader(mapName, mappedName, 6)
+print "reader created"
+
+print "reading..."
+n, G = r.read()
+print "n=",n
+print "reading done"
 """

@@ -36,6 +36,7 @@ if __name__ == '__main__':
     # MPI init:
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
+    procs = comm.Get_size()
     master = (rank == 0)
 
     if master:
@@ -43,10 +44,11 @@ if __name__ == '__main__':
         #n, G, urls = from_file('./output-biit.txt')
 	
 	# TODO test
-	mapName = '../data/Map for crawledResults5.txt.txt' 
-	mappedName = '../data/Mapped version of crawledResults5.txt.txt'
+	#data provided by Eero
+	mapName = '../data/Map for crawledResults1.txt.txt' 
+	mappedName = '../data/Mapped version of crawledResults1.txt.txt'
 
-	r = MatReader(mapName, mappedName)
+	r = mappedfilereader.MatReader(mapName, mappedName, procs)
 	n, G = r.read()
 
         print 'n:', n
