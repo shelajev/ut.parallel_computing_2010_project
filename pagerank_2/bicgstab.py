@@ -310,9 +310,9 @@ class Calculator:
             self.lid += 1
         self.matrixes[name] = a
         return a
+    
     # helper functions that
     # generate id, if neccesary and return tuple for sending over
-    
     def ras(self, r, a, s):
         """ r - result, a - matrix, s - scalar """
         rid = self.getId(r)
@@ -562,7 +562,7 @@ class SolverDistributed:
         mapName = '../data/Map for crawledResults1.txt.txt' 
         mappedName = '../data/Mapped version of crawledResults1.txt.txt'
         
-        r = mappedfilereader.MatReader(mapName, mappedName, self.comm.size)
+        r = mappedfilereader.MatReader(mapName, mappedName)
         s, self.A = r.read()
         self.A = self.A.tocsr()
         
