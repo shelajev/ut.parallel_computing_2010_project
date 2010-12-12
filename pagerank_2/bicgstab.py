@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import scipy.sparse as sparse
 from numpy.random import randn, rand
 import random
 from mpi4py import MPI
@@ -74,16 +75,11 @@ class CalculatorNode:
         b = self.matrixes.get(b)
         c = self.matrixes.get(c)
         
-        #a = np.asmatrix(a)
-        
         if b == None:
             return a
         elif c == None:
-            #b = np.asmatrix(b)
             return (a,b)
         else:
-            #b = np.asmatrix(b)
-            #c = np.asmatrix(c)
             return (a,b,c)
     
     def full(self, a):
@@ -107,8 +103,7 @@ class CalculatorNode:
         
     def set(self, r, R):
         """ set my partial matrix """
-        self.matrixes[r] = np.asmatrix(R)
-        #self.matrixes[r] = R
+        self.matrixes[r] = R
     
     def _new(self, data):
         a, width, value = data
@@ -133,7 +128,7 @@ class CalculatorNode:
     
     def CollectSum(self, a, target):
         A = self.get(a)
-        self.Send(sum(A), dest = target, tag = OP_COLLECT_SUM)
+        self.Send(A.sum(), dest = target, tag = OP_COLLECT_SUM)
     
     def _mex(self, data):
         r, a, v = data
@@ -144,9 +139,6 @@ class CalculatorNode:
         # can be optimized so that
         # V is not fully loaded into memory
         V = self.full(v)
-        print "A m66tmed " ,A.shape
-        print "V m66tmed " ,V.shape 
-        
         R = A * V
         self.set(r, R)
     
@@ -373,7 +365,7 @@ class Calculator:
             rows = self.rows[i]
             s = rows[0]
             e = rows[1]
-            self.Send((a, A[s:e]), i, OP_SET)
+            self.Send((a, A[s:e,:]), i, OP_SET)
     
     def Dot(self, r, a, b):
         self.Broadcast(self.rab(r,a,b), OP_DOT)
@@ -431,8 +423,8 @@ class SolverDistributed:
         self.convergence = 0.00001
     
     def Setup(self):
-        #self.calculator = Calculator(self.comm, len(self.A))
         self.calculator = Calculator(self.comm, self.A.shape[0])
+        
     def log(self, msg):
         print '       ', msg
     
@@ -569,18 +561,15 @@ class SolverDistributed:
         # set input files
         mapName = '../data/Map for crawledResults1.txt.txt' 
         mappedName = '../data/Mapped version of crawledResults1.txt.txt'
-        """
-        mapName = '../data/Map for crawledResults5.txt.txt' 
-        mappedName = '../data/Mapped version of crawledResults5.txt.txt'
-       """ 
-    	r = mappedfilereader.MatReader(mapName, mappedName, self.comm.size)
-    	s, self.A = r.read()
-    
-    #	self.b = np.asmatrix(rand(s,1))*10
-    	self.b = np.ones((s,1))
-    
-    	self.log('s = %d' % s)
-
+        
+        r = mappedfilereader.MatReader(mapName, mappedName, self.comm.size)
+        s, self.A = r.read()
+        self.A = self.A.tocsr()
+        
+        self.b = np.ones((s,1))
+        
+        self.log('s = %d' % s)
+        
         self.Setup()
         self.Initialize()
         self.bicgstab(10)
