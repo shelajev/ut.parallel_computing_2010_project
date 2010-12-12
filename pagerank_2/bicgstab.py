@@ -7,6 +7,7 @@ import random
 from mpi4py import MPI
 from time import time
 import os
+import mappedfilereader
 
 # todo
     # bicgstab has quite large error, can this be improved?
@@ -143,6 +144,9 @@ class CalculatorNode:
         # can be optimized so that
         # V is not fully loaded into memory
         V = self.full(v)
+        print "A m66tmed " ,A.shape
+        print "V m66tmed " ,V.shape 
+        
         R = A * V
         self.set(r, R)
     
@@ -427,8 +431,8 @@ class SolverDistributed:
         self.convergence = 0.00001
     
     def Setup(self):
-        self.calculator = Calculator(self.comm, len(self.A))
-    
+        #self.calculator = Calculator(self.comm, len(self.A))
+        self.calculator = Calculator(self.comm, self.A.shape[0])
     def log(self, msg):
         print '       ', msg
     
@@ -560,11 +564,38 @@ class SolverDistributed:
         print sum(abs(z - self.b))
         self.Done()
 
+    def testSolver2(self):
+        np.random.seed(int(time()))
+        # set input files
+        mapName = '../data/Map for crawledResults1.txt.txt' 
+        mappedName = '../data/Mapped version of crawledResults1.txt.txt'
+        """
+        mapName = '../data/Map for crawledResults5.txt.txt' 
+        mappedName = '../data/Mapped version of crawledResults5.txt.txt'
+       """ 
+    	r = mappedfilereader.MatReader(mapName, mappedName, self.comm.size)
+    	s, self.A = r.read()
+    
+    #	self.b = np.asmatrix(rand(s,1))*10
+    	self.b = np.ones((s,1))
+    
+    	self.log('s = %d' % s)
+
+        self.Setup()
+        self.Initialize()
+        self.bicgstab(10)
+        x = self.getX()
+        x_i = self.calculator.Collect('x')
+        z = self.A*x
+        #print z
+        print sum(abs(z - self.b))
+        self.Done()
+
 def main():
     comm = MPI.COMM_WORLD
     if comm.rank == 0 :
         s = SolverDistributed(comm)
-        s.testSolver()
+        s.testSolver2()
     else:
         n = CalculatorNode(comm)
         n.run()
