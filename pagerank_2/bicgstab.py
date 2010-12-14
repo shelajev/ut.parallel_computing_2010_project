@@ -464,11 +464,30 @@ class SolverDistributed:
         pass
     
     def Save(self, filename):
-        # h = self.calculator
-        
+        h = self.calculator
         # collect A, r, rho, w, v, p, x, r_hat, alpha
         # save to file
-        pass
+        # lines following that are commented out gave errors!
+        f = open(filename, "ab")
+        # print 'Saving A'
+        # f.write(h.Collect('A'))     
+        print 'Saving r'
+        f.write(h.Collect('r'))  
+        # print 'Saving rho'
+        # f.write(h.Collect('rho'))  
+        # print 'Saving w'
+        # f.write(h.Collect('w'))  
+        print 'Saving v'
+        f.write(h.Collect('v'))  
+        print 'Saving p'
+        f.write(h.Collect('p'))
+        print 'Saving x'
+        f.write(h.Collect('x'))  
+        print 'Saving r_hat'
+        f.write(h.Collect('r_hat'))  
+        # print 'Saving alpha'
+        # f.write(h.Collect('alpha'))            
+        f.close()
         
     def bicgstab(self, iterations):
         h = self.calculator
@@ -531,6 +550,7 @@ class SolverDistributed:
             if i >= iterations:
                 break
             i += 1
+            self.Save('save.txt')
             
         self.rho = rho
         self.alpha = alpha
