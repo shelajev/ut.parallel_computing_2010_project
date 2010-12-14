@@ -559,8 +559,8 @@ class SolverDistributed:
     def testSolver2(self):
         np.random.seed(int(time()))
         # set input files
-        mapName = '../data/Map for crawledResults1.txt.txt' 
-        mappedName = '../data/Mapped version of crawledResults1.txt.txt'
+        mapName = '../data/Map for crawledResults0640.txt.txt' 
+        mappedName = '../data/Mapped version of crawledResults0640.txt.txt'
         
         r = mappedfilereader.MatReader(mapName, mappedName)
         s, self.A = r.read()
