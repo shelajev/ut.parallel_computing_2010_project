@@ -461,6 +461,7 @@ class SolverDistributed:
         
         # load A, r, rho, w, v, p, x, r_hat, alpha
         # distribute
+        # from file read to variables and then call self.Initialize()???
         pass
     
     def Save(self, filename):
@@ -469,23 +470,23 @@ class SolverDistributed:
         # save to file
         # lines following that are commented out gave errors!
         f = open(filename, "ab")
-        # print 'Saving A'
+        # self.log('Saving A')
         # f.write(h.Collect('A'))     
-        print 'Saving r'
+        self.log('Saving r')
         f.write(h.Collect('r'))  
-        # print 'Saving rho'
+        # self.log('Saving rho')
         # f.write(h.Collect('rho'))  
-        # print 'Saving w'
+        # self.log('Saving w')
         # f.write(h.Collect('w'))  
-        print 'Saving v'
+        self.log('Saving v')
         f.write(h.Collect('v'))  
-        print 'Saving p'
+        self.log('Saving p')
         f.write(h.Collect('p'))
-        print 'Saving x'
+        self.log('Saving x')
         f.write(h.Collect('x'))  
-        print 'Saving r_hat'
+        self.log('Saving r_hat')
         f.write(h.Collect('r_hat'))  
-        # print 'Saving alpha'
+        # self.log('Saving alpha')
         # f.write(h.Collect('alpha'))            
         f.close()
         
