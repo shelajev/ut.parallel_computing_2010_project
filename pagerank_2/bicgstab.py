@@ -432,6 +432,10 @@ class SolverDistributed:
     def Initialize(self):
         self.log('initializing')
         h = self.calculator
+
+        # read in last checkpoint
+        if os.path.isfile('save.txt'):
+            self.Load('save.txt') 
         
         # distribute data
         self.log('set A')
@@ -465,9 +469,7 @@ class SolverDistributed:
         self.log('Loading x')
         x = pickle.load(save)  
         self.log('Loading p')
-        p = pickle.load(save)
-        print 'x: ', x
-        print 'p: ', p     
+        p = pickle.load(save)   
         # now distribute   
         save.close()
     
@@ -483,7 +485,7 @@ class SolverDistributed:
         save.close()
         
     def bicgstab(self, iterations):
-        h = self.calculator
+        h = self.calculator      
         
         convergence = self.convergence
         alpha = self.alpha
@@ -491,10 +493,9 @@ class SolverDistributed:
         w = self.w
         
         i = 1
+        # while not interrupted stop is 0
+        stop = 0
         while True:
-            if os.path.isfile('save.txt'):
-                self.Load('save.txt')
-
             self.log('iteration %s' % i)
             
             rho_i = h.Dot('rho_i', 'r_hat', 'r')
@@ -546,7 +547,11 @@ class SolverDistributed:
             if i >= iterations:
                 break
             i += 1
-            self.Save('save.txt')
+            # here should be some input from the keyboard
+            stop = 1
+            if (stop == 1):
+                self.Save('save.txt')
+                break
             
         self.rho = rho
         self.alpha = alpha
