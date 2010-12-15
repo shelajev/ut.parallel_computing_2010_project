@@ -100,7 +100,7 @@ class CalculatorNode:
             data = self.comm.sendrecv(send, self.left,  _OP_CIRCLE,
                                       None, self.right, _OP_CIRCLE)
             rows, right = data
-            R[rows[0]:rows[1]] = right
+            R[rows[0]:rows[1],:] = right
         R.tocsr()
         return R
         
