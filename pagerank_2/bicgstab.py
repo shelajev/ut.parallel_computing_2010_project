@@ -89,8 +89,9 @@ class CalculatorNode:
         rows = self.rows
         height = self.height
         
-        R = np.zeros((height,len(mine[0])))
-        R[rows[0]:rows[1]] = mine
+        R = sparse.lil_matrix((height,mine.shape[1]))
+        
+        R[rows[0]:rows[1],:] = mine
         right = mine
         # use circular distribution
         for _ in range(1, self.comm.size - 1):
@@ -100,6 +101,7 @@ class CalculatorNode:
                                       None, self.right, _OP_CIRCLE)
             rows, right = data
             R[rows[0]:rows[1]] = right
+        R.tocsr()
         return R
         
     def set(self, r, R):
@@ -384,10 +386,23 @@ class Calculator:
     def Collect(self, r):
         a = self.getId(r, False)
         self.Broadcast(a, OP_COLLECT)
-        t = np.zeros((self.height, 1))
-        for _ in range(1, self.comm.size):
+        
+        # get first row/data tuple, so we can create the appropriate result matrix
+        rows, data = self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT)
+        
+        # create empty matrix
+        t = sparse.lil_matrix((self.height, rows.shape[1]))
+        
+        # add the first data
+        t[rows[0]:rows[1],:] = data
+        
+        # get all other data
+        for _ in range(2, self.comm.size):
             rows, data = self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT)
-            t[rows[0]:rows[1]] = data
+            t[rows[0]:rows[1],:] = data
+        t.tocsr()
+        
+        # just sync
         self.Sync()
         return t
     
@@ -409,12 +424,12 @@ class Calculator:
         for i in range(1, self.comm.size):
             # non blocking send as we are usually just sending
             # commands
-            self.comm.send(data, dest=i, tag=tag)
+            self.comm.isend(data, dest=i, tag=tag)
             #self.Send(data, i, tag)
     
     def Send(self, data, dest, tag):
-        self.comm.send(data, dest=dest, tag=tag)
-        #self.comm.isend(data, dest=dest, tag=tag)
+        #self.comm.send(data, dest=dest, tag=tag)
+        self.comm.isend(data, dest=dest, tag=tag)
 
 class SolverDistributed:
     def __init__(self, comm):
@@ -422,6 +437,8 @@ class SolverDistributed:
         self.b = None
         self.comm = comm
         self.convergence = 0.00001
+        self.callback = None
+        self.running = false
     
     def Setup(self):
         self.calculator = Calculator(self.comm, self.A.shape[0])
@@ -432,10 +449,6 @@ class SolverDistributed:
     def Initialize(self):
         self.log('initializing')
         h = self.calculator
-
-        # read in last checkpoint
-        if os.path.isfile('save.txt'):
-            self.Load('save.txt') 
         
         # distribute data
         self.log('set A')
@@ -493,8 +506,7 @@ class SolverDistributed:
         w = self.w
         
         i = 1
-        # while not interrupted, stop is 0
-        stop = 0
+        self.running = True
         while True:
             self.log('iteration %s' % i)
             
@@ -546,12 +558,12 @@ class SolverDistributed:
                 break
             if i >= iterations:
                 break
-            i += 1
-            # here should be some input from the keyboard
-            # stop = 1
-            if (stop == 1):
-                self.Save('save.txt')
+            if self.callback != None:
+                self.callback(i)
+            if not self.running:
                 break
+            
+            i += 1
             
         self.rho = rho
         self.alpha = alpha
