@@ -9,6 +9,7 @@ from mpi4py import MPI
 from time import time
 import os
 import mappedfilereader
+import pickle
 
 # todo
     # bicgstab has quite large error, can this be improved?
@@ -457,38 +458,29 @@ class SolverDistributed:
         h.Move('p', 'v')
     
     def Load(self, filename):
-        # h = self.calculator
-        
+        h = self.calculator 
         # load A, r, rho, w, v, p, x, r_hat, alpha
         # distribute
-        # from file read to variables and then call self.Initialize()???
-        pass
+        save = open(filename, "rb")   
+        self.log('Loading x')
+        x = pickle.load(save)  
+        self.log('Loading p')
+        p = pickle.load(save)
+        print 'x: ', x
+        print 'p: ', p     
+        # now distribute   
+        save.close()
     
     def Save(self, filename):
         h = self.calculator
         # collect A, r, rho, w, v, p, x, r_hat, alpha
         # save to file
-        # lines following that are commented out gave errors!
-        f = open(filename, "ab")
-        # self.log('Saving A')
-        # f.write(h.Collect('A'))     
-        self.log('Saving r')
-        f.write(h.Collect('r'))  
-        # self.log('Saving rho')
-        # f.write(h.Collect('rho'))  
-        # self.log('Saving w')
-        # f.write(h.Collect('w'))  
-        self.log('Saving v')
-        f.write(h.Collect('v'))  
-        self.log('Saving p')
-        f.write(h.Collect('p'))
+        save = open(filename, "wb")   
         self.log('Saving x')
-        f.write(h.Collect('x'))  
-        self.log('Saving r_hat')
-        f.write(h.Collect('r_hat'))  
-        # self.log('Saving alpha')
-        # f.write(h.Collect('alpha'))            
-        f.close()
+        pickle.dump(h.Collect('x'), save)  
+        self.log('Saving p')
+        pickle.dump(h.Collect('p'), save)           
+        save.close()
         
     def bicgstab(self, iterations):
         h = self.calculator
@@ -500,6 +492,9 @@ class SolverDistributed:
         
         i = 1
         while True:
+            if os.path.isfile('save.txt'):
+                self.Load('save.txt')
+
             self.log('iteration %s' % i)
             
             rho_i = h.Dot('rho_i', 'r_hat', 'r')
