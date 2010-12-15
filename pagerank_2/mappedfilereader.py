@@ -15,7 +15,7 @@ class MatReader:
         G = dok_matrix((self.n,self.n))
         f = open(self.mappedName,'r')
         for line in f:
-            if line.find(' '):
+            if line.find('\t') != -1:
                 row, col = self._line2el(line)
                 G[row,col]=1
         return self.n, G
