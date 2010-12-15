@@ -45,6 +45,13 @@ OP_COLLECT = tg()
 # internal operations
 _OP_CIRCLE = tg()
 
+def listToMatrix(mtxs):
+    """ converts list of [ (rows, matrix) ], to a matrix  """
+    mtxs.sort(key = lambda x : x[0])
+    mtxs = map(lambda x : x[1], mtxs)      
+    R = sparse.vstack(mtxs)
+    return R
+
 class CalculatorNode:
     """
         Is a node that is able to fulfill matrix operations sent by
@@ -89,19 +96,16 @@ class CalculatorNode:
         rows = self.rows
         height = self.height
         
-        R = sparse.lil_matrix((height,mine.shape[1]))
-        
-        R[rows[0]:rows[1],:] = mine
-        right = mine
+        send = (rows,mine)
+        coll = [send]
         # use circular distribution
         for _ in range(1, self.comm.size - 1):
-            # range = size - master - self times
-            send = (rows, right)
             data = self.comm.sendrecv(send, self.left,  _OP_CIRCLE,
                                       None, self.right, _OP_CIRCLE)
-            rows, right = data
-            R[rows[0]:rows[1],:] = right
-        R.tocsr()
+            coll.append(data)
+            send = data
+        
+        R = listToMatrix(coll)
         return R
         
     def set(self, r, R):
@@ -113,8 +117,7 @@ class CalculatorNode:
         self.New(a, width, value)
     
     def New(self, a, width, value):
-        A = np.zeros((self.meight,width))
-        A += value
+        A = sparse.csr_matrix(np.ones((self.meight,width))*value)
         self.set(a, A)
     
     def _collect(self, data):
@@ -151,7 +154,7 @@ class CalculatorNode:
         
     def TensorDot(self, r, a, b):
         A, B = self.get(a,b)
-        R = np.tensordot(A,B)
+        R = A.multiply(B)
         self.set(r, R)
     
     def _scalar(self, data):
@@ -387,23 +390,14 @@ class Calculator:
         a = self.getId(r, False)
         self.Broadcast(a, OP_COLLECT)
         
-        # get first row/data tuple, so we can create the appropriate result matrix
-        rows, data = self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT)
+        coll = []
+        for _ in range(1, self.comm.size):
+            tup = self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT)
+            coll.append(tup)
         
-        # create empty matrix
-        t = sparse.lil_matrix((self.height, rows.shape[1]))
-        
-        # add the first data
-        t[rows[0]:rows[1],:] = data
-        
-        # get all other data
-        for _ in range(2, self.comm.size):
-            rows, data = self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT)
-            t[rows[0]:rows[1],:] = data
-        t.tocsr()
-        
-        # just sync
+        t = listToMatrix(coll)
         self.Sync()
+        
         return t
     
     def Done(self):
@@ -438,7 +432,7 @@ class SolverDistributed:
         self.comm = comm
         self.convergence = 0.00001
         self.callback = None
-        self.running = false
+        self.running = False
     
     def Setup(self):
         self.calculator = Calculator(self.comm, self.A.shape[0])
@@ -498,7 +492,7 @@ class SolverDistributed:
         save.close()
         
     def bicgstab(self, iterations):
-        h = self.calculator      
+        h = self.calculator
         
         convergence = self.convergence
         alpha = self.alpha
@@ -592,14 +586,14 @@ class SolverDistributed:
     def testSolver2(self):
         np.random.seed(int(time()))
         # set input files
-        mapName = '../data/Map for crawledResults0640.txt.txt' 
-        mappedName = '../data/Mapped version of crawledResults0640.txt.txt'
+        mapName = '../data/Map for crawledResults1.txt.txt' 
+        mappedName = '../data/Mapped version of crawledResults1.txt.txt'
         
         r = mappedfilereader.MatReader(mapName, mappedName)
         s, self.A = r.read()
+        print self.A.todense()
         self.A = self.A.tocsr()
-        
-        self.b = np.ones((s,1))
+        self.b = sparse.csr_matrix(np.ones((s,1))*1.0)
         
         self.log('s = %d' % s)
         
@@ -608,9 +602,11 @@ class SolverDistributed:
         self.bicgstab(10)
         x = self.getX()
         x_i = self.calculator.Collect('x')
+        print self.A.shape
+        print x.shape
+        print x.todense()[3:10,:]
         z = self.A*x
-        #print z
-        print sum(abs(z - self.b))
+        print sum(abs(z.todense() - self.b.todense()))
         self.Done()
 
 def main():
