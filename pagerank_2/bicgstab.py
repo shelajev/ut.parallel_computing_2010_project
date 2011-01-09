@@ -6,10 +6,11 @@ import scipy.sparse as sparse
 from numpy.random import randn, rand
 import random
 from mpi4py import MPI
-from time import time
+from time import time, sleep
 import os
 import mappedfilereader
 import pickle
+from threading import Thread
 
 # todo
     # bicgstab has quite large error, can this be improved?
@@ -609,11 +610,22 @@ class SolverDistributed:
         print sum(abs(z.todense() - self.b.todense()))
         self.Done()
 
+def saveCall():
+    wait = raw_input('Press ENTER to save: \n')
+    if not wait:
+        print 'Saving stuff...'
+        # set up a flag to save when iteration is complete in bicgstab
+        print 'Exiting...'
+        os._exit(0)
+
 def main():
     comm = MPI.COMM_WORLD
     if comm.rank == 0 :
         s = SolverDistributed(comm)
+        save = Thread(target=saveCall)
+        save.start()
         s.testSolver2()
+        os._exit(0)
     else:
         n = CalculatorNode(comm)
         n.run()
