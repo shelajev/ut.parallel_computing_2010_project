@@ -491,6 +491,8 @@ class SolverDistributed:
         pickle.dump(h.Collect('p'), save)
         # add things to be saved         
         save.close()
+        self.log('Exiting...')
+        os._exit(0)
         
     def bicgstab(self, iterations):
         h = self.calculator
@@ -503,6 +505,7 @@ class SolverDistributed:
         i = 1
         self.running = True
         while True:
+            #sleep (2)
             self.log('iteration %s' % i)
             
             rho_i = h.Dot('rho_i', 'r_hat', 'r')
@@ -556,8 +559,8 @@ class SolverDistributed:
             if self.callback != None:
                 self.callback(i)
             if not self.running:
-                break
-            
+                self.Save('checkpoint.txt')
+                break   
             i += 1
             
         self.rho = rho
@@ -610,21 +613,20 @@ class SolverDistributed:
         print sum(abs(z.todense() - self.b.todense()))
         self.Done()
 
-def saveCall():
-    wait = raw_input('Press ENTER to save: \n')
+def saveCall(solver, arg2):
+    wait = raw_input('Press ENTER to save:\n')
     if not wait:
-        print 'Saving stuff...'
-        # set up a flag to save when iteration is complete in bicgstab
-        print 'Exiting...'
-        os._exit(0)
+        solver.log('Saving stuff...')
+        solver.running = False
 
 def main():
     comm = MPI.COMM_WORLD
     if comm.rank == 0 :
         s = SolverDistributed(comm)
-        save = Thread(target=saveCall)
+        save = Thread(target=saveCall, args=(s, None))
         save.start()
         s.testSolver2()
+        s.log('Exiting...')
         os._exit(0)
     else:
         n = CalculatorNode(comm)
