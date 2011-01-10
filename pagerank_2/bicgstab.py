@@ -45,13 +45,41 @@ OP_COLLECT = tg()
 
 # internal operations
 _OP_CIRCLE = tg()
+_OP_CIRCLE_DIR = tg()
 
 def listToMatrix(mtxs):
     """ converts list of [ (rows, matrix) ], to a matrix  """
     mtxs.sort(key = lambda x : x[0])
-    mtxs = map(lambda x : x[1], mtxs)      
+    mtxs = map(lambda x : x[1], mtxs)
     R = sparse.vstack(mtxs)
     return R
+
+def uniqlist(a):
+    """ returns unique elements from list """
+    return {}.fromkeys(a).keys()
+
+def colmask(a):
+    """ vector that contains col numbers for each column that contains values and
+        0 otherwise"""
+    # this can be probably optimized
+    # returns nonzero indices of columns
+    M = a.nonzero()[1]
+    # remove duplicates and sort
+    M = sorted(uniqlist(M))    
+    return M
+
+def applymask(a, rows, mask):
+    """ applies colmask 'mask' to matrix 'a' limited to 'rows' """
+    # this can be probably optimized
+    s = a.shape[0]
+    data = np.zeros(s)
+    for i in mask:
+        if (i >= rows[0]) and (i < rows[1]):
+            t = i - rows[0]
+            data[t] = 1.0
+    mtx = sparse.spdiags(data, [0], s,s)
+    at = (a.transpose() * mtx).transpose().tocsr()
+    return at
 
 class CalculatorNode:
     """
@@ -77,6 +105,7 @@ class CalculatorNode:
         # siblings = left, right
         self.left = 0
         self.right = 0
+        self.id = 0
         
     def get(self, a, b = -1, c = -1):
         """ get my partial matrix """
@@ -108,6 +137,30 @@ class CalculatorNode:
         
         R = listToMatrix(coll)
         return R
+
+    def fullMasked(self, a, mask):
+        """ collect full matrix """
+        mine = self.matrixes[a]
+        rows = self.rows
+        height = self.height
+        
+        send = (self.id, mask)
+        coll = [(rows,mine)]
+        # use circular distribution
+        for _ in range(1, self.comm.size - 1):
+            # pass (id, mask) around
+            data = self.comm.sendrecv(send, self.left,  _OP_CIRCLE,
+                                      None, self.right, _OP_CIRCLE)
+            send = data
+            # apply 'mask' to this nodes data and send it to 'id'
+            masked  = applymask(mine, rows, data[1])
+            mtx = self.comm.sendrecv((rows, masked), data[0], _OP_CIRCLE_DIR,
+                                      None, MPI.ANY_SOURCE , _OP_CIRCLE_DIR)
+            coll.append(mtx)
+            
+        R = listToMatrix(coll)
+        return R
+
         
     def set(self, r, R):
         """ set my partial matrix """
@@ -140,12 +193,11 @@ class CalculatorNode:
     def _mex(self, data):
         r, a, v = data
         self.Mex(r,a,v)
-        
+    
     def Mex(self, r, a, v):
         A = self.get(a)
-        # can be optimized so that
-        # V is not fully loaded into memory
-        V = self.full(v)
+        mask = colmask(A)
+        V = self.fullMasked(v, mask)
         R = A * V
         self.set(r, R)
     
@@ -226,6 +278,7 @@ class CalculatorNode:
         comm = self.comm
         s = MPI.Status()
         # start matrix calculation node
+        self.id = self.comm.rank        
         while True:
             data = comm.recv(None, self.master, MPI.ANY_TAG, s)
             if s.tag == T_DONE:
@@ -594,8 +647,7 @@ class SolverDistributed:
         x = self.getX()
         x_i = self.calculator.Collect('x')
         z = self.A*x
-        #print z
-        print sum(abs(z - self.b))
+        self.log(sum(abs(z - self.b)))
         self.Done()
 
     def testSolver2(self):
@@ -611,8 +663,8 @@ class SolverDistributed:
             self.log('Checkpoint file does not exist, starting from the beginning...')
             r = mappedfilereader.MatReader(mapName, mappedName)
             s, self.A = r.read()
-            print self.A.todense()
             self.A = self.A.tocsr()
+            self.log(repr(self.A))
             self.b = sparse.csr_matrix(np.ones((s,1))*1.0)
             self.log('s = %d' % s)
             self.Setup()
@@ -621,11 +673,11 @@ class SolverDistributed:
         self.bicgstab(10)
         x = self.getX()
         x_i = self.calculator.Collect('x')
-        print self.A.shape
-        print x.shape
-        print x.todense()[3:10,:]
+        self.log(self.A.shape)
+        self.log(x.shape)
+        self.log(x.todense()[3:10,:])
         z = self.A*x
-        print sum(abs(z.todense() - self.b.todense()))
+        self.log(sum(abs(z.todense() - self.b.todense())))
         self.Done()
 
 def saveCall(solver, arg2):
