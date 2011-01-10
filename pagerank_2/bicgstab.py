@@ -478,7 +478,6 @@ class SolverDistributed:
         A = pickle.load(save)  
         self.A = A.tocsr()
 
-
         self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
 
         self.log('Loading r')
@@ -514,9 +513,6 @@ class SolverDistributed:
         save = open(filename, "wb")   
         self.log('Saving A')
         pickle.dump(h.Collect('A'), save)
-       # A = h.Collect('A') 
-       # print A
-       # A.dump("checkpoint_A.txt")
         self.log('Saving r')
         pickle.dump(h.Collect('r'), save)
         self.log('Saving rho')
