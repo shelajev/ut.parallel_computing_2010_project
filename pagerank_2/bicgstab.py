@@ -523,14 +523,40 @@ class SolverDistributed:
         h.Move('p', 'v')
     
     def Load(self, filename):
-        # load A, r, rho, w, v, p, x, r_hat, alpha
-        # distribute
-        h = self.calculator 
+        # load A, r, rho, w, v, p, x, r_hat, alpha as instance variables
+        # distributing is done using Initialize ?
+        
         save = open(filename, "rb")   
-        self.log('Loading x')
-        x = pickle.load(save)  
+        self.log('Loading A')
+        A = pickle.load(save)  
+        self.A = A.tocsr()
+
+        self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
+
+        self.log('Loading r')
+        r = pickle.load(save)
+        self.r = r
+        self.log('Loading rho')
+        rho = pickle.load(save)
+        self.rho = rho
+        self.log('Loading w')
+        w = pickle.load(save)
+        self.w = w
+        self.log('Loading v')
+        v = pickle.load(save)
+        self.v = v
         self.log('Loading p')
         p = pickle.load(save)
+        self.p = p
+        self.log('Loading x')
+        x = pickle.load(save)
+        self.x = x
+        self.log('Loading r_hat')
+        r_hat = pickle.load(save)
+        self.r_hat = r_hat
+        self.log('Loading alpha')
+        alpha = pickle.load(save)
+        self.alpha = alpha
         save.close()
     
     def Save(self, filename):
@@ -659,6 +685,8 @@ class SolverDistributed:
         if os.path.isfile('../data/checkpoint.txt'):
             self.log('Checkpoint file exists, reading...')
             self.Load('../data/checkpoint.txt')
+            self.Setup() 
+            self.Initialize()
         else:
             self.log('Checkpoint file does not exist, starting from the beginning...')
             r = mappedfilereader.MatReader(mapName, mappedName)
