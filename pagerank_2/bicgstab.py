@@ -470,29 +470,40 @@ class SolverDistributed:
         h.Move('p', 'v')
     
     def Load(self, filename):
-        h = self.calculator 
         # load A, r, rho, w, v, p, x, r_hat, alpha
+        # distribute
+        h = self.calculator 
         save = open(filename, "rb")   
         self.log('Loading x')
         x = pickle.load(save)  
         self.log('Loading p')
-        p = pickle.load(save)   
-        # now distribute   
+        p = pickle.load(save)
         save.close()
     
     def Save(self, filename):
-        h = self.calculator
         # collect A, r, rho, w, v, p, x, r_hat, alpha
         # save to file
+        h = self.calculator
         save = open(filename, "wb")   
-        self.log('Saving x')
-        pickle.dump(h.Collect('x'), save)  
+        self.log('Saving A')
+        pickle.dump(h.Collect('A'), save)
+        self.log('Saving r')
+        pickle.dump(h.Collect('r'), save)
+        self.log('Saving rho')
+        pickle.dump(self.rho, save)
+        self.log('Saving w')
+        pickle.dump(self.w, save)
+        self.log('Saving v')
+        pickle.dump(h.Collect('v'), save)
         self.log('Saving p')
         pickle.dump(h.Collect('p'), save)
-        # add things to be saved         
+        self.log('Saving x')
+        pickle.dump(h.Collect('x'), save)
+        self.log('Saving r_hat')
+        pickle.dump(h.Collect('r_hat'), save)
+        self.log('Saving alpha')
+        pickle.dump(self.alpha, save)
         save.close()
-        self.log('Exiting...')
-        os._exit(0)
         
     def bicgstab(self, iterations):
         h = self.calculator
@@ -505,7 +516,7 @@ class SolverDistributed:
         i = 1
         self.running = True
         while True:
-            #sleep (2)
+            sleep (2)
             self.log('iteration %s' % i)
             
             rho_i = h.Dot('rho_i', 'r_hat', 'r')
@@ -615,9 +626,8 @@ class SolverDistributed:
 
 def saveCall(solver, arg2):
     wait = raw_input('Press ENTER to save:\n')
-    if not wait:
-        solver.log('Saving stuff...')
-        solver.running = False
+    solver.log('Saving stuff...')
+    solver.running = False
 
 def main():
     comm = MPI.COMM_WORLD
