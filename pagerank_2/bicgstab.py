@@ -516,7 +516,7 @@ class SolverDistributed:
         i = 1
         self.running = True
         while True:
-            sleep (2)
+            # sleep (2)
             self.log('iteration %s' % i)
             
             rho_i = h.Dot('rho_i', 'r_hat', 'r')
@@ -570,7 +570,7 @@ class SolverDistributed:
             if self.callback != None:
                 self.callback(i)
             if not self.running:
-                self.Save('checkpoint.txt')
+                self.Save('../data/checkpoint.txt')
                 break   
             i += 1
             
