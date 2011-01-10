@@ -43,6 +43,8 @@ OP_DOT    = tg()
 OP_COLLECT_SUM = tg()
 OP_COLLECT = tg()
 OP_OPTIMIZE = tg()
+OP_BROADCAST  = tg()
+OP_PREPARE_PAGERANK = tg()
 
 # internal operations
 _OP_CIRCLE = tg()
@@ -292,6 +294,30 @@ class CalculatorNode:
     def Move(self, a, b):
         B = self.get(b)
         self.set(a, B.copy())
+
+    def _prepare_pagerank(self, data):
+        r, a, c = data
+        self.PreparePageRank(r, a, c)
+
+    def PreparePageRank(self, r, a, c):
+        A = self.get(a)
+        #A = A.tolil()
+        colsum = self.get(c)
+
+        for j in np.arange(colsum.size):
+            if colsum[j] != 0:
+                # divide all elements in that column by colsum[j]:
+                #A[:,j] /= colsum[j]
+                pass
+
+        # do A = I - p*A, p = 0.85
+
+    def _bcast(self, data):
+        r, d = data
+        self.Bcast(r, d)
+
+    def Bcast(self, r, vec):
+        self.set(r, vec)
     
     def Send(self, data, dest, tag):
         self.comm.send(data, dest=dest, tag=tag)
@@ -344,11 +370,13 @@ class CalculatorNode:
             OP_COLLECT_SUM : self._collect_sum,
             OP_COLLECT     : self._collect,
             OP_OPTIMIZE : self._optimize,
+            OP_BROADCAST : self._bcast,
+            OP_PREPARE_PAGERANK : self._prepare_pagerank,
             T_SYNC : self.Sync
         }
         # start matrix calculation node
         while True:
-            data = comm.recv(None, self.master, MPI.ANY_TAG, s)
+            data = comm.recv(None, source=self.master, tag=MPI.ANY_TAG, status=s)
             if s.tag == T_DONE:
                 break
             op = ops.get(s.tag)
@@ -461,6 +489,15 @@ class Calculator:
             s = rows[0]
             e = rows[1]
             self.Send((a, A[s:e,:]), i, OP_SET)
+
+    def Bcast(self, r, data):
+        a = self.getId(r)
+        for i in range(1, self.comm.size):
+            self.Send((a, data), i, OP_BROADCAST)
+
+    def PreparePageRank(self, r, a, c):
+        rab = self.rab(r, a, c)
+        self.Broadcast(rab, OP_PREPARE_PAGERANK)
     
     def Dot(self, r, a, b):
         self.Broadcast(self.rab(r,a,b), OP_DOT)
@@ -514,8 +551,8 @@ class Calculator:
             #self.Send(data, i, tag)
     
     def Send(self, data, dest, tag):
-        #self.comm.send(data, dest=dest, tag=tag)
-        self.comm.isend(data, dest=dest, tag=tag)
+        self.comm.send(data, dest=dest, tag=tag)
+        #self.comm.isend(data, dest=dest, tag=tag)
 
 class SolverDistributed:
     def __init__(self, comm):
@@ -540,6 +577,13 @@ class SolverDistributed:
         # distribute data
         self.log('set A')
         h.Set('A', self.A)
+
+        self.log('bcast colsum')
+        h.Bcast('colsum', self.colsum)
+
+        self.log('prepare PageRank')
+        h.PreparePageRank('A', 'A', 'colsum')
+
         self.log('set b')
         h.Set('b', self.b)
         self.log('create x')
@@ -572,6 +616,8 @@ class SolverDistributed:
 
         self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
 
+        self.log('Loading colsum')
+        self.colsum = pickle.load(save)
         self.log('Loading r')
         r = pickle.load(save)
         self.r = r
@@ -607,6 +653,8 @@ class SolverDistributed:
         save = open(filename, "wb")   
         self.log('Saving A')
         pickle.dump(h.Collect('A'), save)
+        self.log('Saving colsum')
+        pickle.dump(self.colsum, save)
         self.log('Saving r')
         pickle.dump(h.Collect('r'), save)
         self.log('Saving rho')
@@ -735,8 +783,9 @@ class SolverDistributed:
         else:
             self.log('Checkpoint file does not exist, starting from the beginning...')
             r = mappedfilereader.MatReader(mapName, mappedName)
-            s, self.A = r.read()
-            self.A = self.A.tocsr()
+            s, A = r.read()
+            self.colsum = np.ravel(A.sum(axis=0)) # column sums # must be done before tocsr()
+            self.A = A.tocsr()
             self.log(repr(self.A))
             self.b = sparse.csr_matrix(np.ones((s,1))*1.0)
             self.log('s = %d' % s)
