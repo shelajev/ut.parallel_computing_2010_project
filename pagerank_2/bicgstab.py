@@ -42,6 +42,7 @@ OP_SET    = tg()
 OP_DOT    = tg()
 OP_COLLECT_SUM = tg()
 OP_COLLECT = tg()
+OP_OPTIMIZE = tg()
 
 # internal operations
 _OP_CIRCLE = tg()
@@ -61,24 +62,52 @@ def uniqlist(a):
 def colmask(a):
     """ vector that contains col numbers for each column that contains values and
         0 otherwise"""
-    # this can be probably optimized
-    # returns nonzero indices of columns
-    M = a.nonzero()[1]
+    # nonzero cols
+    if sparse.isspmatrix_csr(a):
+        nzcols = a.indices
+    else:
+        nzcols = a.nonzero()[1]
     # remove duplicates and sort
-    M = sorted(uniqlist(M))    
+    M = sorted(uniqlist(nzcols))
     return M
 
 def applymask(a, rows, mask):
     """ applies colmask 'mask' to matrix 'a' limited to 'rows' """
     # this can be probably optimized
-    s = a.shape[0]
-    data = np.zeros(s)
-    for i in mask:
-        if (i >= rows[0]) and (i < rows[1]):
-            t = i - rows[0]
-            data[t] = 1.0
-    mtx = sparse.spdiags(data, [0], s,s)
-    at = (a.transpose() * mtx).transpose().tocsr()
+    if sparse.isspmatrix_csr(a):
+        indptr = np.zeros(a.shape[0] + 1, dtype=int)
+        indices = []
+        data = []
+        
+        lastpos=0
+        lastt=0
+        count = 0
+        for i in mask:
+            if (i >= rows[0]) and (i < rows[1]):
+                t = i - rows[0]
+                # set rows between to zero
+                indptr[lastt+1:t+1] = count
+                # find indices/data range
+                indstart, indend = a.indptr[t], a.indptr[t+1]
+                # copy col_indices and data
+                indices.append(a.indices[indstart:indend])
+                data.append(a.data[indstart:indend])
+                # set end
+                count += indend - indstart
+                lastt = t
+        indptr[lastt+1:len(indptr)] = count
+        data = np.concatenate(data)
+        indices = np.concatenate(indices)
+        at = sparse.csr_matrix((data,indices,indptr), dtype=a.dtype, shape=a.shape)
+    else:
+        s = a.shape[0]
+        data = np.zeros(s)
+        for i in mask:
+            if (i >= rows[0]) and (i < rows[1]):
+                t = i - rows[0]
+                data[t] = 1.0
+        mtx = sparse.spdiags(data, [0], s,s)
+        at = (a.transpose() * mtx).transpose().tocsr()
     return at
 
 class CalculatorNode:
@@ -268,6 +297,11 @@ class CalculatorNode:
         self.comm.send(data, dest=dest, tag=tag)
         #self.comm.isend(data, dest=dest, tag=tag)
     
+    def _optimize(self, a):
+        for m in self.matrixes.values():
+            if sparse.issparse(m):
+                m.eliminate_zeros()
+    
     # mainloop
     
     def run(self):
@@ -309,6 +343,7 @@ class CalculatorNode:
             OP_DOT  : self._dot,
             OP_COLLECT_SUM : self._collect_sum,
             OP_COLLECT     : self._collect,
+            OP_OPTIMIZE : self._optimize,
             T_SYNC : self.Sync
         }
         # start matrix calculation node
@@ -453,6 +488,9 @@ class Calculator:
         self.Sync()
         
         return t
+    
+    def Optimize(self):
+        self.Broadcast(0, OP_OPTIMIZE)
     
     def Done(self):
         self.Broadcast(0, T_DONE)
