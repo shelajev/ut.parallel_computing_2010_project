@@ -524,6 +524,7 @@ class SolverDistributed:
         self.convergence = 0.00001
         self.callback = None
         self.running = False
+        self.i = 1
     
     def Setup(self):
         self.calculator = Calculator(self.comm, self.A.shape[0])
@@ -601,6 +602,8 @@ class SolverDistributed:
         self.log('Loading alpha')
         alpha = pickle.load(save)
         self.alpha = alpha
+        self.log('Loading i')
+        self.i = pickle.load(save) + 1
         save.close()
     
     def Save(self, filename):
@@ -626,6 +629,8 @@ class SolverDistributed:
         pickle.dump(h.Collect('r_hat'), save)
         self.log('Saving alpha')
         pickle.dump(self.alpha, save)
+        self.log('Saving i')
+        pickle.dump(self.i, save)
         save.close()
         
     def bicgstab(self, iterations):
@@ -636,11 +641,10 @@ class SolverDistributed:
         rho = self.rho
         w = self.w
         
-        i = 1
         self.running = True
         while True:
             # sleep (2)
-            self.log('iteration %s' % i)
+            self.log('iteration %s' % self.i)
             
             rho_i = h.Dot('rho_i', 'r_hat', 'r')
             beta = (rho_i / rho) * (alpha / w)
@@ -687,15 +691,18 @@ class SolverDistributed:
             h.Move('x', 'x_i')
             
             if s < convergence:
+                self.log('The right solution found!')
                 break
-            if i >= iterations:
+            if self.i >= iterations:
+                self.log('Maximum number of iterations reached, convergence not reached. Saving...')
+                self.Save('../data/checkpoint.txt')
                 break
             if self.callback != None:
                 self.callback(i)
             if not self.running:
                 self.Save('../data/checkpoint.txt')
-                break   
-            i += 1
+                break
+            self.i += 1
             
         self.rho = rho
         self.alpha = alpha
