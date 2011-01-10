@@ -604,16 +604,20 @@ class SolverDistributed:
         mapName = '../data/Map for crawledResults1.txt.txt' 
         mappedName = '../data/Mapped version of crawledResults1.txt.txt'
         
-        r = mappedfilereader.MatReader(mapName, mappedName)
-        s, self.A = r.read()
-        print self.A.todense()
-        self.A = self.A.tocsr()
-        self.b = sparse.csr_matrix(np.ones((s,1))*1.0)
+        if os.path.isfile('../data/checkpoint.txt'):
+            self.log('Checkpoint file exists, reading...')
+            self.Load('../data/checkpoint.txt')
+        else:
+            self.log('Checkpoint file does not exist, starting from the beginning...')
+            r = mappedfilereader.MatReader(mapName, mappedName)
+            s, self.A = r.read()
+            print self.A.todense()
+            self.A = self.A.tocsr()
+            self.b = sparse.csr_matrix(np.ones((s,1))*1.0)
+            self.log('s = %d' % s)
+            self.Setup()
+            self.Initialize()
         
-        self.log('s = %d' % s)
-        
-        self.Setup()
-        self.Initialize()
         self.bicgstab(10)
         x = self.getX()
         x_i = self.calculator.Collect('x')
