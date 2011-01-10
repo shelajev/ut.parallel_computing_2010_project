@@ -578,6 +578,8 @@ class SolverDistributed:
 
         self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
 
+        self.log('Loading colsum')
+        self.colsum = pickle.load(save)
         self.log('Loading r')
         r = pickle.load(save)
         self.r = r
@@ -613,6 +615,8 @@ class SolverDistributed:
         save = open(filename, "wb")   
         self.log('Saving A')
         pickle.dump(h.Collect('A'), save)
+        self.log('Saving colsum')
+        pickle.dump(self.colsum, save)
         self.log('Saving r')
         pickle.dump(h.Collect('r'), save)
         self.log('Saving rho')
