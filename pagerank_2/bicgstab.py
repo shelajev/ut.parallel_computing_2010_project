@@ -618,45 +618,49 @@ class SolverDistributed:
     
     def Load(self, filename):
         # load A, r, rho, w, v, p, x, r_hat, alpha as instance variables
-        # distributing is done using Initialize ?
-        
         save = open(filename, "rb")   
         self.log('Loading A')
         A = pickle.load(save)  
         self.A = A.tocsr()
-
         self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
-
         self.log('Loading colsum')
         self.colsum = pickle.load(save)
         self.log('Loading r')
-        r = pickle.load(save)
-        self.r = r
+        self.r = pickle.load(save)
         self.log('Loading rho')
-        rho = pickle.load(save)
-        self.rho = rho
+        self.rho = pickle.load(save)
         self.log('Loading w')
-        w = pickle.load(save)
-        self.w = w
+        self.w = pickle.load(save)
         self.log('Loading v')
-        v = pickle.load(save)
-        self.v = v
+        self.v = pickle.load(save)
         self.log('Loading p')
-        p = pickle.load(save)
-        self.p = p
+        self.p = pickle.load(save)
         self.log('Loading x')
-        x = pickle.load(save)
-        self.x = x
+        self.x = pickle.load(save)
         self.log('Loading r_hat')
-        r_hat = pickle.load(save)
-        self.r_hat = r_hat
+        self.r_hat = pickle.load(save)
         self.log('Loading alpha')
-        alpha = pickle.load(save)
-        self.alpha = alpha
+        self.alpha = pickle.load(save)
         self.log('Loading i')
         self.i = pickle.load(save) + 1
         save.close()
-    
+
+    def Distribute(self):
+        self.log('Initializing from saved values')
+        self.calculator = Calculator(self.comm, self.A.shape[0])
+        h = self.calculator
+
+        h.Set('A', self.A)
+        h.Bcast('colsum', self.colsum)
+        h.PreparePageRank('A', 'A', 'colsum')
+        h.Set('b', self.b)
+
+        h.Set('x', self.x.tocsr())        
+        h.Set('r', self.r.tocsr())
+        h.Set('r_hat', self.r_hat.tocsr())
+        h.Set('v', self.v.tocsr())
+        h.Set('p', self.p.tocsr())
+            
     def Save(self, filename):
         # collect A, r, rho, w, v, p, x, r_hat, alpha
         # save to file
@@ -789,8 +793,7 @@ class SolverDistributed:
         if os.path.isfile('../data/checkpoint.txt'):
             self.log('Checkpoint file exists, reading...')
             self.Load('../data/checkpoint.txt')
-            self.Setup() 
-            self.Initialize()
+            self.Distribute()
         else:
             self.log('Checkpoint file does not exist, starting from the beginning...')
             r = mappedfilereader.MatReader(mapName, mappedName)
