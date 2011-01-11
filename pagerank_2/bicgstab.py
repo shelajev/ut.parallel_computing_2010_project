@@ -301,16 +301,27 @@ class CalculatorNode:
 
     def PreparePageRank(self, r, a, c):
         A = self.get(a)
-        #A = A.tolil()
         colsum = self.get(c)
 
-        for j in np.arange(colsum.size):
-            if colsum[j] != 0:
-                # divide all elements in that column by colsum[j]:
-                #A[:,j] /= colsum[j]
-                pass
-
         # do A = I - p*A, p = 0.85
+        A = A.tocsc() # we want to work with columns
+        if sparse.isspmatrix_csc(A):
+            for j in np.arange(colsum.size):
+                if colsum[j] != 0:
+                    # divide all elements in that column by colsum[j]:
+                    ptr1 = A.indptr[j]
+                    ptr2 = A.indptr[j+1]
+                    A.data[ptr1:ptr2] /= colsum[j]
+                    pass
+
+            p = 0.85
+            A = -p*A
+
+            # Add 1 to all elements on diaginal:
+            A = A.tolil() # because making structural changes to lil_matrix is more efficient
+            A.setdiag(A.diagonal() + 1.0)
+
+        self.set(r, A.tocsr())
 
     def _bcast(self, data):
         r, d = data
