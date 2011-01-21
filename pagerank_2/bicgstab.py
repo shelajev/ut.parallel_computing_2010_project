@@ -652,7 +652,7 @@ class SolverDistributed:
 
         h.Set('A', self.A)
         h.Bcast('colsum', self.colsum)
-        h.PreparePageRank('A', 'A', 'colsum')
+        #h.PreparePageRank('A', 'A', 'colsum')
         h.Set('b', self.b)
 
         h.Set('x', self.x.tocsr())        
@@ -808,12 +808,14 @@ class SolverDistributed:
         
         self.bicgstab(10)
         x = self.getX()
-        x_i = self.calculator.Collect('x')
         self.log(self.A.shape)
         self.log(x.shape)
-        self.log(x.todense()[3:10,:])
-        z = self.A*x
-        self.log(sum(abs(z.todense() - self.b.todense())))
+        self.log('RageRank vector:')
+        x =x/x.sum()
+        self.log(x)
+        #self.log(x.todense()[3:10,:])
+        #z = self.A*x
+        #self.log(sum(abs(z.todense() - self.b.todense())))
         self.Done()
 
 def saveCall(solver, arg2):
