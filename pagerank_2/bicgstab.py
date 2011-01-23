@@ -11,6 +11,7 @@ import os
 import mappedfilereader
 import pickle
 from threading import Thread
+from datetime import datetime
 
 # todo
     # bicgstab has quite large error, can this be improved?
@@ -111,6 +112,9 @@ def applymask(a, rows, mask):
         mtx = sparse.spdiags(data, [0], s,s)
         at = (a.transpose() * mtx).transpose().tocsr()
     return at
+
+def str_td(td):
+    return str(td.seconds + td.microseconds/1e6)
 
 class CalculatorNode:
     """
@@ -389,6 +393,7 @@ class CalculatorNode:
         while True:
             data = comm.recv(None, source=self.master, tag=MPI.ANY_TAG, status=s)
             if s.tag == T_DONE:
+                MPI.Finalize()
                 break
             op = ops.get(s.tag)
             if op == None :
@@ -542,6 +547,7 @@ class Calculator:
     
     def Done(self):
         self.Broadcast(0, T_DONE)
+        MPI.Finalize()
     
     # network operations
     
@@ -790,14 +796,17 @@ class SolverDistributed:
         mapName = '../data/Map for crawledResults1.txt.txt' 
         mappedName = '../data/Mapped version of crawledResults1.txt.txt'
         
+        dt1 = datetime.now()
         if os.path.isfile('../data/checkpoint.txt'):
             self.log('Checkpoint file exists, reading...')
             self.Load('../data/checkpoint.txt')
+            dt2 = datetime.now()
             self.Distribute()
         else:
             self.log('Checkpoint file does not exist, starting from the beginning...')
             r = mappedfilereader.MatReader(mapName, mappedName)
             s, A = r.read()
+            dt2 = datetime.now()
             self.colsum = np.ravel(A.sum(axis=0)) # column sums # must be done before tocsr()
             self.A = A.tocsr()
             self.log(repr(self.A))
@@ -806,17 +815,29 @@ class SolverDistributed:
             self.Setup()
             self.Initialize()
         
+        dt3 = datetime.now()
         self.bicgstab(10)
+        dt4 = datetime.now()
         x = self.getX()
-        self.log(self.A.shape)
-        self.log(x.shape)
-        self.log('RageRank vector:')
         x =x/x.sum()
-        self.log(x)
+        dt5 = datetime.now()
         #self.log(x.todense()[3:10,:])
         #z = self.A*x
         #self.log(sum(abs(z.todense() - self.b.todense())))
         self.Done()
+
+        # timings:
+        self.log('TIMINGS:')
+        self.log('reading input file: ' + str_td(dt2-dt1))
+        self.log('distribute values: ' + str_td(dt3-dt2))
+        self.log('BiCGStab: ' + str_td(dt4-dt3))
+        self.log('collect x: ' + str_td(dt5-dt4))
+        self.log('total: ' + str_td(dt5-dt1))
+
+        self.log('A.shape: ' + str(self.A.shape))
+        self.log('x.shape: ' + str(x.shape))
+        self.log('RageRank vector:')
+        self.log(x)
 
 def saveCall(solver, arg2):
     wait = raw_input('Press ENTER to save:\n')
