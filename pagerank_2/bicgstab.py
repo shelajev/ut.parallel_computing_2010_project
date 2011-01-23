@@ -323,7 +323,10 @@ class CalculatorNode:
 
             # Add 1 to all elements on diaginal:
             A = A.tolil() # because making structural changes to lil_matrix is more efficient
-            A.setdiag(A.diagonal() + 1.0)
+            row = 0
+            for col in range(self.rows[0], self.rows[1]):
+                A[row, col] += 1.0
+                row += 1
 
         self.set(r, A.tocsr())
 
