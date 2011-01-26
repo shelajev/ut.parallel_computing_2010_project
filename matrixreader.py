@@ -3,7 +3,7 @@ import numpy as np
 from scipy.sparse import * # lil_matrix
 
 
-def ReadFromMappedFile(mappedFilename):
+def ReadMatrix(mappedFilename):
     """ reads a matrix mapped file in format:
             ID_from\tID_to\n
             ...
@@ -29,7 +29,7 @@ def ReadFromMappedFile(mappedFilename):
     
     return G
 
-def ReadMapFile(mapFilename):
+def ReadLinks(mapFilename):
     """ reads in a id with link
             ID\tlink\n
             ...

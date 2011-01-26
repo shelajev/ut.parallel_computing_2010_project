@@ -24,3 +24,6 @@ def ValueColumns(a):
     # remove duplicates and sort
     M = sorted(uniqlist(nzcols))
     return M
+
+def AddToDiagonal(matrix, diag, value):
+    

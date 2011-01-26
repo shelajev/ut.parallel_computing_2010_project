@@ -15,7 +15,7 @@ from numpy.random import randn, rand
 from mpi4py import MPI
 
 # Internal utilities
-import mappedfilereader
+import matrixreader as mr
 import matrixutils as mu
 
 ####################
@@ -117,12 +117,13 @@ def str_td(td):
 class CalculatorNode:
     """
         Is a node that is able to fulfill matrix operations sent by
-        RemoteMatrixHandler.
+        Calculator.
         
         It stores only partial matrixes and those are distributed
         only when neccessary.
     """
     def __init__(self, comm):
+        # comm object used for communication
         self.comm = comm
         # matrix columns
         # id --> partial_matrix
