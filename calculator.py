@@ -131,6 +131,7 @@ class CalculatorNode:
         # matrix columns
         # id --> partial_matrix
         self.matrixes = {}
+        self.masks    = {}
         # which rows am I holding 
         self.rows = (0,0)
         # my partial matrix height
@@ -159,15 +160,23 @@ class CalculatorNode:
     
     def set(self, r, A):
         self.matrixes[r] = A
+        if self.masks.has_key(r):
+            del self.masks[r]
     
-    def applyMask(self, A, mask):
+    def getMasked(self, a, mask):
+        A = self.get(a)
         return applymask(A, self.rows, mask)
         
-    def getMask(self, A):
+    def getMask(self, a):
         """ vector that contains col numbers for each column that contains values and
             0 otherwise"""
+        if self.masks.has_key(a):
+            z = self.masks[a]
+        else:
+            A = self.get(a)
+            z = mu.ValueColumns(A)
+            self.masks[a] = z
         # should do cacheing here
-        z = mu.ValueColumns(A)
         return z
     
     def full(self, a):
@@ -324,7 +333,7 @@ class CalculatorNode:
     def Mex(self, r, a, b):
         """ multiplies two matrices a and b, puts the result to r """
         A = self.get(a)
-        mask = self.getMask(A)
+        mask = self.getMask(a)
         B = self.fullMasked(b, mask)
         R = A * B
         self.set(r, R)

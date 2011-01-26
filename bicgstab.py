@@ -136,16 +136,17 @@ class PagerankSolver:
         h.Set('A', self.A)
         self.b = self.b.tocsr()
         h.Set('b', self.b)
-
+        
         h.Set('x', self.x.tocsr())
-        del self.x
         h.Set('r', self.r.tocsr())
-        del self.r
         h.Set('r_hat', self.r_hat.tocsr())
-        del self.r_hat
         h.Set('v', self.v.tocsr())
-        del self.v
         h.Set('p', self.p.tocsr())
+        
+        del self.x
+        del self.r
+        del self.r_hat
+        del self.v
         del self.p
             
     def Save(self, filename):
@@ -176,6 +177,8 @@ class PagerankSolver:
         alpha = self.alpha
         rho = self.rho
         w = self.w
+        
+        last_iteration = iterations + self.i
         
         self.running = True
         self.foundSolution = False
@@ -231,7 +234,7 @@ class PagerankSolver:
                 self.foundSolution = True
                 break
 
-            if (not self.running) or (self.i >= iterations):
+            if (not self.running) or (self.i > last_iteration):
                 self.foundSolution = False
                 break
             
