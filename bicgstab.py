@@ -29,7 +29,7 @@ class PagerankSolver:
     def __init__(self, comm, mapFile, mappedFile):
         self.mapFile = mapFile
         self.mappedFile = mappedFile
-        self.checkpoint = './checkpoint'
+        self.checkpoint = 'data/checkpoint'
         
         self.A = None
         self.b = None
@@ -68,7 +68,6 @@ class PagerankSolver:
         # distribute data
         self.log('set A')
         h.Set('A', self.A)
-        del self.A
 
         self.log('Broadcast colsum')
         h.Broadcast('colsum', colsum)
@@ -111,74 +110,63 @@ class PagerankSolver:
     def Load(self, filename):
         # load A, r, rho, w, v, p, x, r_hat, alpha as instance variables
         save = open(filename, "rb")   
-        self.log('Loading A')
-        A = pickle.load(save)  
-        self.A = A.tocsr()
-        self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
-        self.log('Loading colsum')
-        self.colsum = pickle.load(save)
-        self.log('Loading r')
-        self.r = pickle.load(save)
-        self.log('Loading rho')
+        
+        # bicgstab scalars
         self.rho = pickle.load(save)
-        self.log('Loading w')
         self.w = pickle.load(save)
-        self.log('Loading v')
-        self.v = pickle.load(save)
-        self.log('Loading p')
-        self.p = pickle.load(save)
-        self.log('Loading x')
-        self.x = pickle.load(save)
-        self.log('Loading r_hat')
-        self.r_hat = pickle.load(save)
-        self.log('Loading alpha')
         self.alpha = pickle.load(save)
-        self.log('Loading i')
         self.i = pickle.load(save) + 1
+        # matrices   
+        self.A = pickle.load(save)        
+        self.b = pickle.load(save)        
+        self.r = pickle.load(save)
+        self.v = pickle.load(save)
+        self.p = pickle.load(save)
+        self.x = pickle.load(save)
+        self.r_hat = pickle.load(save)
+        
         save.close()
 
     def Distribute(self):
         self.log('Initializing from saved values')
-        self.calculator = Calculator(self.comm, self.A.shape[0])
+        self.Setup()
         h = self.calculator
-
+        
+        self.A = self.A.tocsr()
         h.Set('A', self.A)
-        h.Broadcast('colsum', self.colsum)
+        self.b = self.b.tocsr()
         h.Set('b', self.b)
 
-        h.Set('x', self.x.tocsr())        
+        h.Set('x', self.x.tocsr())
+        del self.x
         h.Set('r', self.r.tocsr())
+        del self.r
         h.Set('r_hat', self.r_hat.tocsr())
+        del self.r_hat
         h.Set('v', self.v.tocsr())
+        del self.v
         h.Set('p', self.p.tocsr())
+        del self.p
             
     def Save(self, filename):
         # collect A, r, rho, w, v, p, x, r_hat, alpha
         # save to file
         h = self.calculator
-        save = open(filename, "wb")   
-
-        pickle.dump(h.Collect('A'), save)
-        self.log('Saving colsum')
-        pickle.dump(self.colsum, save)
-        self.log('Saving r')
-        pickle.dump(h.Collect('r'), save)
-        self.log('Saving rho')
+        save = open(filename, "wb")
+        
         pickle.dump(self.rho, save)
-        self.log('Saving w')
         pickle.dump(self.w, save)
-        self.log('Saving v')
-        pickle.dump(h.Collect('v'), save)
-        self.log('Saving p')
-        pickle.dump(h.Collect('p'), save)
-        self.log('Saving x')
-        pickle.dump(h.Collect('x'), save)
-        self.log('Saving r_hat')
-        pickle.dump(h.Collect('r_hat'), save)
-        self.log('Saving alpha')
         pickle.dump(self.alpha, save)
-        self.log('Saving i')
         pickle.dump(self.i, save)
+        
+        pickle.dump(h.Collect('A'), save)
+        pickle.dump(h.Collect('b'), save)
+        pickle.dump(h.Collect('r'), save)
+        pickle.dump(h.Collect('v'), save)
+        pickle.dump(h.Collect('p'), save)
+        pickle.dump(h.Collect('x'), save)
+        pickle.dump(h.Collect('r_hat'), save)
+        
         save.close()
         
     def bicgstab(self, iterations):
@@ -239,15 +227,11 @@ class PagerankSolver:
             h.Move('p', 'p_i')
             h.Move('x', 'x_i')
             
-            if not self.running:
-                self.foundSolution = False
-                break
-            
             if s < convergence:
                 self.foundSolution = True
                 break
-            
-            if self.i >= iterations:
+
+            if (not self.running) or (self.i >= iterations):
                 self.foundSolution = False
                 break
             
@@ -255,6 +239,7 @@ class PagerankSolver:
             
         self.rho = rho
         self.alpha = alpha
+        self.w = w
     
     def getX(self):
         return self.calculator.Collect('x')
@@ -269,6 +254,7 @@ class PagerankSolver:
             self.log('Checkpoint exists, continuing from checkpoint')
             self.LoadCheckpoint()
             dt2 = datetime.now()
+            self.Distribute()
         else:
             self.log('Checkpoint does not exist, starting from the beginning...')
             self.A = mr.ReadMatrix(self.mapFile, self.mappedFile)
