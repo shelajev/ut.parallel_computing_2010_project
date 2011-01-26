@@ -44,7 +44,13 @@ T_SYNC     = tg()  # this synchronizes all nodes in MPI
 # OPERATIONS
 # These are the calculation capabilities of the calculator
 
-# manipulation
+# distribution
+OP_SET     = tg()  # distributes a matrix to the nodes
+OP_BROADCAST   = tg()  # broadcasts data (not split) to all of the nodes
+OP_COLLECT     = tg()  # collects the matrix on the master calculator
+OP_COLLECT_SUM = tg()  # collects the total sum of values in the matrix on the master calculator
+
+# creation/manipulation
 OP_NEW     = tg()  # creates a new matrix with specified value and size
 OP_MOVE    = tg()  # moves a matrix to a different variable
 OP_DEL     = tg()  # deletes a matrix from the nodes
@@ -55,14 +61,8 @@ OP_ABS     = tg()  # gets the absolute values of a matrix
 OP_ADD     = tg()  # adds one matrix to another
 OP_SUB     = tg()  # substracts one matrix from another
 OP_SCALAR  = tg()  # multiplies a matrix with a scalar
-OP_MEX     = tg()  # multiplies one matrix with another, both matrices must be the same height
 OP_DOT     = tg()  # does a dot product with matrices
-
-# distribution
-OP_SET     = tg()  # distributes a matrix to the nodes
-OP_BROADCAST   = tg()  # broadcasts data (not split) to all of the nodes
-OP_COLLECT     = tg()  # collects the matrix on the master calculator
-OP_COLLECT_SUM = tg()  # collects the total sum of values in the matrix on the master calculator
+OP_MEX     = tg()  # multiplies one matrix with another, both matrices must be the same height
 
 # complex commands
 OP_PREPARE_PAGERANK = tg()  # does pagerank preparations
@@ -126,6 +126,7 @@ class CalculatorNode:
         It stores only partial matrixes and those are distributed
         only when neccessary.
     """
+    
     def __init__(self, comm):
         # comm object used for communication
         self.comm = comm
@@ -144,9 +145,9 @@ class CalculatorNode:
         self.left = 0
         self.right = 0
         self.id = 0
-        
+    
     def get(self, a, b = -1, c = -1):
-        """ get my partial matrix """
+        """ get my partial matrix (or matrices) """
         a = self.matrixes.get(a)
         b = self.matrixes.get(b)
         c = self.matrixes.get(c)
@@ -157,6 +158,9 @@ class CalculatorNode:
             return (a,b)
         else:
             return (a,b,c)
+    
+    def set(self, r, A):
+        self.Set(r, A)
     
     def full(self, a):
         """ collect full matrix """
@@ -198,39 +202,109 @@ class CalculatorNode:
             
         R = mu.ListToMatrix(coll)
         return R
+    
+    def Sync(self, data):
+        self.comm.Barrier()
 
-        
-    def set(self, r, R):
+    def Send(self, data, dest, tag):
+        self.comm.isend(data, dest=dest, tag=tag)
+        #self.comm.isend(data, dest=dest, tag=tag)
+    
+  #################################
+  # Matrix Operations
+  # 
+  # conventions
+  #   _opname - unpacks the data and passes it to Opname
+  #   Opname  - does the command
+  #
+  # arguments: 
+  #   lower case letters are id-s
+  #   capital letters are matrixes
+  #
+  #   r - is the id of result
+  #   a, b - are the argument matrixes
+  #################################
+  
+  #
+  # distribution
+  #
+  
+    def Set(self, r, A):
         """ set my partial matrix to a value"""
-        self.matrixes[r] = R
+        self.matrixes[r] = A
     
-    def _new(self, data):
-        a, width, value = data
-        self.New(a, width, value)
-    
-    def New(self, a, width, value):
-        A = sparse.csr_matrix(np.ones((self.meight,width))*value)
-        self.set(a, A)
-    
-    def _collect(self, data):
-        a = data
-        self.Collect(a, self.master)
-    
+    def Broadcast(self, r, vec):
+        """ broadcast data (not split) to all of the nodes """
+        self.set(r, vec)
+
     def Collect(self, a, target):
+        """ collects the matrix on the master calculator """
         A = self.get(a)
         self.Send((self.rows, A), dest = target, tag = OP_COLLECT)
     
-    def _collect_sum(self, data):
-        a = data
-        self.CollectSum(a, self.master)
-    
     def CollectSum(self, a, target):
+        """ collects the total sum of values in the matrix
+            to the master calculator """
         A = self.get(a)
         self.Send(A.sum(), dest = target, tag = OP_COLLECT_SUM)
+
+  #
+  # manipulation
+  #
+        
+    def New(self, a, width, value):
+        """ create a new matrix with specified width and value """
+        A = sparse.csr_matrix(np.ones((self.meight,width))*value)
+        self.set(a, A)
+        
+    def Move(self, a, b):
+        """ moves a matrix to a different id """
+        B = self.get(b)
+        self.set(a, B.copy())
     
-    def _mex(self, data):
-        r, a, v = data
-        self.Mex(r,a,v)
+    def Del(self, a):
+        """ delets matrix from list """
+        del self.matrixes[a]
+    
+    def Optimize(self, a):
+        """ optimizes a, if a < 0 optimizes every matrix """
+        if a < 0:
+            for m in self.matrixes.values():
+                if sparse.issparse(m):
+                    m.eliminate_zeros()
+        else:
+            A = self.get(a)
+            if sparse.issparse(A):
+                A.eliminate_zeros()
+
+  #
+  # computation
+  #
+
+    def Abs(self, r, a):
+        A = self.get(a)
+        R = abs(A)
+        self.set(r, R)
+    
+    def Add(self, r, a, b):
+        A, B = self.get(a,b)
+        R = A + B
+        self.set(r,R)
+        
+    def Sub(self, r, a, b):
+        A, B = self.get(a,b)
+        R = A - B
+        self.set(r,R)
+        
+    def Scalar(self, r, a, s):
+        A = self.get(a)
+        R = A * s
+        self.set(r,R)
+        
+    def TensorDot(self, r, a, b):
+        A, B = self.get(a,b)
+        R = A.multiply(B)
+        self.set(r, R)
     
     def Mex(self, r, a, v):
         A = self.get(a)
@@ -238,80 +312,18 @@ class CalculatorNode:
         V = self.fullMasked(v, mask)
         R = A * V
         self.set(r, R)
-    
-    def _dot(self, data):
-        r, a, b = data
-        self.TensorDot(r,a,b)
-        
-    def TensorDot(self, r, a, b):
-        A, B = self.get(a,b)
-        R = A.multiply(B)
-        self.set(r, R)
-    
-    def _scalar(self, data):
-        r,a,s = data
-        self.Scalar(r,a,s)
-        
-    def Scalar(self, r, a, s):
-        A = self.get(a)
-        R = A * s
-        self.set(r,R)
-    
-    def _add(self, data):
-        r,a,b = data
-        self.Add(r,a,b)
-    
-    def Add(self, r, a, b):
-        A, B = self.get(a,b)
-        R = A + B
-        self.set(r,R)
-    
-    def _sub(self, data):
-        r, a, b = data
-        self.Sub(r,a,b)
-        
-    def Sub(self, r, a, b):
-        A, B = self.get(a,b)
-        R = A - B
-        self.set(r,R)
-    
-    def _abs(self, data):
-        r, a = data
-        self.Abs(r,a)
-    
-    def Abs(self, r, a):
-        A = self.get(a)
-        R = abs(A)
-        self.set(r, R)
-    
-    def _move(self, data):
-        a, b = data
-        self.Move(a, b)
-    
-    def _set(self, data):
-        r, A = data
-        self.Set(r, A)
-        
-    def Set(self, r, A):
-        self.set(r, A)
-    
-    def Sync(self, data):
-        self.comm.Barrier()
-    
-    def Move(self, a, b):
-        B = self.get(b)
-        self.set(a, B.copy())
 
-    def _prepare_pagerank(self, data):
-        r, a, c = data
-        self.PreparePageRank(r, a, c)
+  #
+  # complex
+  #
 
     def PreparePageRank(self, r, a, c):
         A = self.get(a)
         colsum = self.get(c)
 
         # do A = I - p*A, p = 0.85
-        A = A.tocsc() # we want to work with columns
+        # we want to work with columns
+        A = A.tocsc()
         if sparse.isspmatrix_csc(A):
             for j in np.arange(colsum.size):
                 if colsum[j] != 0:
@@ -319,38 +331,112 @@ class CalculatorNode:
                     ptr1 = A.indptr[j]
                     ptr2 = A.indptr[j+1]
                     A.data[ptr1:ptr2] /= colsum[j]
-                    pass
-
+        
             p = 0.85
             A = -p*A
-
+        
             # Add 1 to all elements on diaginal:
             A = A.tolil() # because making structural changes to lil_matrix is more efficient
             row = 0
             for col in range(self.rows[0], self.rows[1]):
                 A[row, col] += 1.0
                 row += 1
-
+        
         self.set(r, A.tocsr())
+    
+############################################################
+############################################################
+############################################################
 
-    def _bcast(self, data):
+    def _set(self, data):
+        r, A = data
+        self.Set(r, A)
+    
+    def _broadcast(self, data):
         r, d = data
         self.Bcast(r, d)
+        
+    def _collect(self, data):
+        a = data
+        self.Collect(a, self.master)
+        
+    def _collect_sum(self, data):
+        a = data
+        self.CollectSum(a, self.master)
+        
+############################################################
 
-    def Bcast(self, r, vec):
-        self.set(r, vec)
+    def _new(self, data):
+        a, width, value = data
+        self.New(a, width, value)    
     
-    def Send(self, data, dest, tag):
-        self.comm.send(data, dest=dest, tag=tag)
-        #self.comm.isend(data, dest=dest, tag=tag)
+    def _move(self, data):
+        a, b = data
+        self.Move(a, b)
     
-    def _optimize(self, a):
-        for m in self.matrixes.values():
-            if sparse.issparse(m):
-                m.eliminate_zeros()
+    def _del(self, data):
+        a = data
+        self.Del(a)
     
-    # mainloop
+    def _optimize(self, data):
+        a = data
+        self.Optimize(a)
+
+############################################################
     
+    def _mex(self, data):
+        r, a, v = data
+        self.Mex(r,a,v)
+    
+    def _dot(self, data):
+        r, a, b = data
+        self.TensorDot(r,a,b)
+    
+    def _scalar(self, data):
+        r,a,s = data
+        self.Scalar(r,a,s)
+    
+    def _add(self, data):
+        r,a,b = data
+        self.Add(r,a,b)
+############################################################
+
+    
+    def _abs(self, data):
+        r, a = data
+        self.Abs(r,a)        
+    
+    def _sub(self, data):
+        r, a, b = data
+        self.Sub(r,a,b)
+
+############################################################
+
+    def _prepare_pagerank(self, data):
+        r, a, c = data
+        self.PreparePageRank(r, a, c)
+
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+
+  #################################
+  # Main Loops                    #
+  #################################
+  # First the node will go into Setup mode
+  #
+  # in setup mode the master should send it
+  #   T_HEIGHT - height of data to be stored in total
+  #   T_ROWS   - rows that this node should handle
+  #   T_SIBLINGS - left and right nodes on a circle
+  #   T_DONE     - this completes the setup
+  #
+  # The node will be in running mode
+  # and is able to process commands from master
+  #
+  
     def run(self):
         self.setup()
         self.loop()
@@ -376,26 +462,39 @@ class CalculatorNode:
                 os.abort()
     
     def loop(self):
-        comm = self.comm
-        s = MPI.Status()
+        # map from command tag --> function
         ops = {
-            OP_NEW  : self._new,    
-            OP_SCALAR : self._scalar,
-            OP_SUB  : self._sub,
-            OP_ADD  : self._add,
-            OP_MOVE : self._move,
-            OP_MEX  : self._mex,
-            OP_ABS  : self._abs,
+            # distribution
             OP_SET  : self._set,
-            OP_DOT  : self._dot,
-            OP_COLLECT_SUM : self._collect_sum,
+            OP_BROADCAST : self._broadcast,
             OP_COLLECT     : self._collect,
+            OP_COLLECT_SUM : self._collect_sum,
+            
+            # manipulation
+            OP_NEW  : self._new,
+            OP_MOVE : self._move,
+            OP_DEL  : self._del,
             OP_OPTIMIZE : self._optimize,
-            OP_BROADCAST : self._bcast,
+            
+            # computation
+            OP_ABS  : self._abs,
+            OP_ADD  : self._add,
+            OP_SUB  : self._sub,
+            OP_SCALAR : self._scalar,
+            OP_DOT  : self._dot,
+            OP_MEX  : self._mex,
+            
+            # complex commands
             OP_PREPARE_PAGERANK : self._prepare_pagerank,
+            
+            # other
             T_SYNC : self.Sync
         }
-        # start matrix calculation node
+        
+        comm = self.comm
+        s = MPI.Status()
+        
+        # recv commands until T_DONE
         while True:
             data = comm.recv(None, source=self.master, tag=MPI.ANY_TAG, status=s)
             if s.tag == T_DONE:
