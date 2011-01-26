@@ -112,7 +112,7 @@ def applymask(a, rows, mask):
                 t = i - rows[0]
                 data[t] = 1.0
         mtx = sparse.spdiags(data, [0], s,s)
-        at = (mtx * a).tocsr()
+        at = (mtx.transpose() * a).tocsr()
     return at
 
 def str_td(td):

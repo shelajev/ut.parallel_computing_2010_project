@@ -15,7 +15,7 @@ def ReadMatrix(mappedFilename):
     
     readline = buffer.readline
     
-    # count the number of rows    
+    # count the number of rows
     total_rows = 0
     while readline():
         total_rows += 1
