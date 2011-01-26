@@ -44,26 +44,30 @@ T_SYNC     = tg()  # this synchronizes all nodes in MPI
 # OPERATIONS
 # These are the calculation capabilities of the calculator
 
+# manipulation
 OP_NEW     = tg()  # creates a new matrix with specified value and size
-OP_SCALAR  = tg()  # multiplies a matrix with a scalar
-OP_SUB     = tg()  # substracts one matrix from another
-OP_ADD     = tg()  # adds one matrix to another
 OP_MOVE    = tg()  # moves a matrix to a different variable
-OP_MEX     = tg()  # multiplies one matrix with another, both matrices must be the same height
+OP_DEL     = tg()  # deletes a matrix from the nodes
+OP_OPTIMIZE= tg()  # optimizes specified matrix structure
+
+# computation
 OP_ABS     = tg()  # gets the absolute values of a matrix
-OP_SET     = tg()  # distributes a matrix to the nodes
+OP_ADD     = tg()  # adds one matrix to another
+OP_SUB     = tg()  # substracts one matrix from another
+OP_SCALAR  = tg()  # multiplies a matrix with a scalar
+OP_MEX     = tg()  # multiplies one matrix with another, both matrices must be the same height
 OP_DOT     = tg()  # does a dot product with matrices
-OP_COLLECT_SUM = tg()  # collects the total sum of values in the matrix on the master calculator
-OP_COLLECT     = tg()  # collects the matrix on the master calculator
-OP_OPTIMIZE    = tg()  # optimizes specified matrix structure
+
+# distribution
+OP_SET     = tg()  # distributes a matrix to the nodes
 OP_BROADCAST   = tg()  # broadcasts data (not split) to all of the nodes
+OP_COLLECT     = tg()  # collects the matrix on the master calculator
+OP_COLLECT_SUM = tg()  # collects the total sum of values in the matrix on the master calculator
+
+# complex commands
 OP_PREPARE_PAGERANK = tg()  # does pagerank preparations
 
-#####
-# INTERNAL OPERATIONS
-# these operations are used between the nodes for doing some internal
-# calculations that do not involve the master
-
+# node internal operations
 _OP_CIRCLE = tg()
 _OP_CIRCLE_DIR = tg()
 
@@ -197,7 +201,7 @@ class CalculatorNode:
 
         
     def set(self, r, R):
-        """ set my partial matrix """
+        """ set my partial matrix to a value"""
         self.matrixes[r] = R
     
     def _new(self, data):
