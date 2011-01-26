@@ -2,6 +2,9 @@
 
 """Additional matrix utilities for working with scipy"""
 
+import numpy as np
+import scipy.sparse as sparse
+
 def ListToMatrix(mtxs):
     """ converts list of [ (rows, matrix) ], to a matrix  """
     mtxs.sort(key = lambda x : x[0])
@@ -22,8 +25,5 @@ def ValueColumns(a):
     else:
         nzcols = a.nonzero()[1]
     # remove duplicates and sort
-    M = sorted(uniqlist(nzcols))
+    M = sorted(UniqueList(nzcols))
     return M
-
-def AddToDiagonal(matrix, diag, value):
-    

@@ -2,6 +2,7 @@
 import numpy as np
 from scipy.sparse import * # lil_matrix
 
+import mmap
 
 def ReadMatrix(mappedFilename):
     """ reads a matrix mapped file in format:
@@ -9,23 +10,32 @@ def ReadMatrix(mappedFilename):
             ...
         and constructs the matrix
     """
-    # count the number of rows
-    f = open(mappedFileName, 'r')
+    f = open(mappedFilename, 'r')
+    buffer = mmap.mmap(f.fileno(), 0, prot = mmap.PROT_READ)
+    
+    readline = buffer.readline
+    
+    # count the number of rows    
     total_rows = 0
-    for line in f:
+    while readline():
         total_rows += 1
-    f.close()
+    
+    buffer.seek(0)
     
     # construct the matrix
     G = dok_matrix((total_rows, total_rows))
-    f = open(mappedFilename, "r") ############### SWITCH BUFFERING ON
-    for line in f:
+    line = readline()
+    while line:
         parts = line.split("\t", 1)
+        line = readline()
         if len(parts) <= 1:
             continue
         row = int(parts[0])
         col = int(parts[1])
         G[row,col] = 1
+    
+    buffer.close()
+    f.close()
     
     return G
 
@@ -36,7 +46,7 @@ def ReadLinks(mapFilename):
         returns a dictionary with ID as key and value as link
     """
     
-    f = open(mapFilename, 'r')
+    f = open(mapFilename, 'r', buffering=262144)
     items = {}
     for line in f:
         parts = line.split("\t", 1)

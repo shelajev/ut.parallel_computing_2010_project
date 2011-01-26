@@ -16,7 +16,7 @@ from mpi4py import MPI
 
 # Internal utilities
 import matrixreader as mr
-import matrixutils as mu
+import matrixutils  as mu
 
 ####################
 # TAG Enumerator
@@ -173,7 +173,7 @@ class CalculatorNode:
             coll.append(data)
             send = data
         
-        R = listToMatrix(coll)
+        R = mu.ListToMatrix(coll)
         return R
 
     def fullMasked(self, a, mask):
@@ -196,7 +196,7 @@ class CalculatorNode:
                                       None, MPI.ANY_SOURCE , _OP_CIRCLE_DIR)
             coll.append(mtx)
             
-        R = listToMatrix(coll)
+        R = mu.ListToMatrix(coll)
         return R
 
         
@@ -362,7 +362,7 @@ class CalculatorNode:
         self.id = self.comm.rank        
         while True:
             data = comm.recv(None, self.master, MPI.ANY_TAG, s)
-            if s.tag == T_SETUP_DONE:
+            if s.tag == T_DONE:
                 break
             if s.tag == T_HEIGHT:
                 self.height = data
@@ -543,7 +543,7 @@ class Calculator:
             tup = self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT)
             coll.append(tup)
         
-        t = listToMatrix(coll)
+        t = mu.ListToMatrix(coll)
         self.Sync()
         
         return t
@@ -799,25 +799,24 @@ class SolverDistributed:
     def testSolver2(self):
         np.random.seed(int(time()))
         # set input files
-        mapName = '../data/Map for crawledResults1.txt.txt' 
-        mappedName = '../data/Mapped version of crawledResults1.txt.txt'
+        mapName = 'data/Map for crawledResults1.txt.txt' 
+        mappedName = 'data/Mapped version of crawledResults1.txt.txt'
         
         dt1 = datetime.now()
-        if os.path.isfile('../data/checkpoint.txt'):
+        if os.path.isfile('checkpoint/checkpoint.txt'):
             self.log('Checkpoint file exists, reading...')
-            self.Load('../data/checkpoint.txt')
+            self.Load('checkpoint/checkpoint.txt')
             dt2 = datetime.now()
             self.Distribute()
         else:
             self.log('Checkpoint file does not exist, starting from the beginning...')
-            r = mappedfilereader.MatReader(mapName, mappedName)
-            s, A = r.read()
+            A = mr.ReadMatrix(mappedName)
             dt2 = datetime.now()
             self.colsum = np.ravel(A.sum(axis=0)) # column sums # must be done before tocsr()
             self.A = A.tocsr()
             self.log(repr(self.A))
-            self.b = sparse.csr_matrix(np.ones((s,1))*1.0)
-            self.log('s = %d' % s)
+            self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
+            self.log('s = %d' % A.shape[0])
             self.Setup()
             self.Initialize()
         
@@ -865,4 +864,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-z
