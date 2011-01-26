@@ -9,7 +9,8 @@ def ReadFromMappedFile(mappedFilename):
             ...
         and constructs the matrix
     """
-    f = open(mappedFileName, 'r') ############### SWITCH BUFFERING ON
+    # count the number of rows
+    f = open(mappedFileName, 'r')
     total_rows = 0
     for line in f:
         total_rows += 1
@@ -27,3 +28,23 @@ def ReadFromMappedFile(mappedFilename):
         G[row,col] = 1
     
     return G
+
+def ReadMapFile(mapFilename):
+    """ reads in a id with link
+            ID\tlink\n
+            ...
+        returns a dictionary with ID as key and value as link
+    """
+    
+    f = open(mapFilename, 'r')
+    items = {}
+    for line in f:
+        parts = line.split("\t", 1)
+        if len(parts) <= 1:
+            continue
+        id = int(parts[0])
+        link = parts[1].strip()
+        items[id] = link
+    f.close()
+    
+    return items

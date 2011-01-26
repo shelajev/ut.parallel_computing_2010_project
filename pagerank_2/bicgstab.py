@@ -1,82 +1,78 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Utilities
+import os
+from threading import Thread
+from time import time, sleep
+from datetime import datetime
+import pickle
+
+# Libraries
 import numpy as np
 import scipy.sparse as sparse
 from numpy.random import randn, rand
-import random
 from mpi4py import MPI
-from time import time, sleep
-import os
+
+# Internal utilities
 import mappedfilereader
-import pickle
-from threading import Thread
-from datetime import datetime
+import matrixutils as mu
 
-# todo
-    # bicgstab has quite large error, can this be improved?
-
-# tag enumeration
+####################
+# TAG Enumerator
+# calling tg() will give you an unique id
+# to be used as an TAG ID
 _last_tg = 0xfeed
 def tg():
     global _last_tg
     _last_tg += 1
     return _last_tg - 1
 
-# setup
-T_DONE = tg()
-T_HEIGHT = tg()
-T_ROWS = tg()
-T_SIBLINGS = tg()
-T_MASTER = tg()
-T_SYNC = tg()
+#####
+# SETUP
+# these tag values are used for initial setup
+# controller sends those to nodes
 
-# operations
-OP_NEW    = tg()
-OP_SCALAR = tg()
-OP_SUB    = tg()
-OP_ADD    = tg()
-OP_MOVE   = tg()
-OP_MEX    = tg()
-OP_ABS    = tg()
-OP_SET    = tg()
-OP_DOT    = tg()
-OP_COLLECT_SUM = tg()
-OP_COLLECT = tg()
-OP_OPTIMIZE = tg()
-OP_BROADCAST  = tg()
-OP_PREPARE_PAGERANK = tg()
+T_DONE     = tg()  # Sent when setup or program has completed
+T_HEIGHT   = tg()  # this sends the total height of the matrixes stored in matrices
+T_ROWS     = tg()  # rows that the node holds
+T_SIBLINGS = tg()  # ranks for nodes that are left and right to it
+T_MASTER   = tg()  # the master node rank
+T_SYNC     = tg()  # this synchronizes all nodes in MPI
 
-# internal operations
+#####
+# OPERATIONS
+# These are the calculation capabilities of the calculator
+
+OP_NEW     = tg()  # creates a new matrix with specified value and size
+OP_SCALAR  = tg()  # multiplies a matrix with a scalar
+OP_SUB     = tg()  # substracts one matrix from another
+OP_ADD     = tg()  # adds one matrix to another
+OP_MOVE    = tg()  # moves a matrix to a different variable
+OP_MEX     = tg()  # multiplies one matrix with another, both matrices must be the same height
+OP_ABS     = tg()  # gets the absolute values of a matrix
+OP_SET     = tg()  # distributes a matrix to the nodes
+OP_DOT     = tg()  # does a dot product with matrices
+OP_COLLECT_SUM = tg()  # collects the total sum of values in the matrix on the master calculator
+OP_COLLECT     = tg()  # collects the matrix on the master calculator
+OP_OPTIMIZE    = tg()  # optimizes specified matrix structure
+OP_BROADCAST   = tg()  # broadcasts data (not split) to all of the nodes
+OP_PREPARE_PAGERANK = tg()  # does pagerank preparations
+
+#####
+# INTERNAL OPERATIONS
+# these operations are used between the nodes for doing some internal
+# calculations that do not involve the master
+
 _OP_CIRCLE = tg()
 _OP_CIRCLE_DIR = tg()
-
-def listToMatrix(mtxs):
-    """ converts list of [ (rows, matrix) ], to a matrix  """
-    mtxs.sort(key = lambda x : x[0])
-    mtxs = map(lambda x : x[1], mtxs)
-    R = sparse.vstack(mtxs)
-    return R
-
-def uniqlist(a):
-    """ returns unique elements from list """
-    return {}.fromkeys(a).keys()
 
 def colmask(a):
     """ vector that contains col numbers for each column that contains values and
         0 otherwise"""
-    return 0
-    # nonzero cols
-    if sparse.isspmatrix_csr(a):
-        nzcols = a.indices
-    else:
-        nzcols = a.nonzero()[1]
-    # remove duplicates and sort
-    M = sorted(uniqlist(nzcols))
-    return M
+    return mu.ValueColumns(a)
 
 def applymask(a, rows, mask):
-    return a
     """ applies colmask 'mask' to matrix 'a' limited to 'rows' """
     # this can be probably optimized
     if sparse.isspmatrix_csr(a):
@@ -112,7 +108,7 @@ def applymask(a, rows, mask):
                 t = i - rows[0]
                 data[t] = 1.0
         mtx = sparse.spdiags(data, [0], s,s)
-        at = (a.transpose() * mtx).transpose().tocsr()
+        at = (mtx * a).tocsr()
     return at
 
 def str_td(td):
@@ -176,7 +172,7 @@ class CalculatorNode:
         return R
 
     def fullMasked(self, a, mask):
-        """ collect full matrix """
+        """ collect full matrix with a specified column mask"""
         mine = self.matrixes[a]
         rows = self.rows
         height = self.height
@@ -361,7 +357,7 @@ class CalculatorNode:
         self.id = self.comm.rank        
         while True:
             data = comm.recv(None, self.master, MPI.ANY_TAG, s)
-            if s.tag == T_DONE:
+            if s.tag == T_SETUP_DONE:
                 break
             if s.tag == T_HEIGHT:
                 self.height = data
@@ -581,7 +577,7 @@ class SolverDistributed:
         self.A = None
         self.b = None
         self.comm = comm
-        self.convergence = 1e-6
+        self.convergence = 0.00001
         self.callback = None
         self.running = False
         self.i = 1
@@ -796,13 +792,10 @@ class SolverDistributed:
         self.Done()
 
     def testSolver2(self):
-        self.log('Using ' + str(self.comm.size) + ' nodes')
-        self.log('Convergence: ' + str(self.convergence))
         np.random.seed(int(time()))
         # set input files
         mapName = '../data/Map for crawledResults1.txt.txt' 
         mappedName = '../data/Mapped version of crawledResults1.txt.txt'
-        self.log('File: ' + mappedName)
         
         dt1 = datetime.now()
         if os.path.isfile('../data/checkpoint.txt'):
@@ -867,3 +860,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+z
