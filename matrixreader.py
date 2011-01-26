@@ -4,15 +4,14 @@ from scipy.sparse import * # lil_matrix
 
 import mmap
 
-def ReadMatrix(mappedFilename):
+def ReadMatrix(mapFilename, mappedFilename):
     """ reads a matrix mapped file in format:
             ID_from\tID_to\n
             ...
         and constructs the matrix
     """
-    f = open(mappedFilename, 'r')
+    f = open(mapFilename, 'r')
     buffer = mmap.mmap(f.fileno(), 0, prot = mmap.PROT_READ)
-    
     readline = buffer.readline
     
     # count the number of rows
@@ -20,7 +19,12 @@ def ReadMatrix(mappedFilename):
     while readline():
         total_rows += 1
     
-    buffer.seek(0)
+    buffer.close()
+    f.close()
+    
+    f = open(mappedFilename, 'r')
+    buffer = mmap.mmap(f.fileno(), 0, prot = mmap.PROT_READ)    
+    readline = buffer.readline
     
     # construct the matrix
     G = dok_matrix((total_rows, total_rows))

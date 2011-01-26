@@ -810,7 +810,7 @@ class SolverDistributed:
             self.Distribute()
         else:
             self.log('Checkpoint file does not exist, starting from the beginning...')
-            A = mr.ReadMatrix(mappedName)
+            A = mr.ReadMatrix(mapName, mappedName)
             dt2 = datetime.now()
             self.colsum = np.ravel(A.sum(axis=0)) # column sums # must be done before tocsr()
             self.A = A.tocsr()
