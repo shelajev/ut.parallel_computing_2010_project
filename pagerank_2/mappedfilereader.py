@@ -4,10 +4,10 @@ from scipy.sparse import * # lil_matrix
 
 class MatReader:
     def _line2el(self,line):
-        parts = line.partition("\t")
+        parts = line.split("\t", 1)
         # [0] and [2] are important, in [2] \n must be stripped
         row = parts[0]
-        col = parts[2].strip('\n')
+        col = parts[1].strip('\n')
         return int(row), int(col)
 
     def read(self):

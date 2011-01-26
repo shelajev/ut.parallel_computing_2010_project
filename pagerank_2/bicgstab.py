@@ -65,6 +65,7 @@ def uniqlist(a):
 def colmask(a):
     """ vector that contains col numbers for each column that contains values and
         0 otherwise"""
+    return 0
     # nonzero cols
     if sparse.isspmatrix_csr(a):
         nzcols = a.indices
@@ -75,6 +76,7 @@ def colmask(a):
     return M
 
 def applymask(a, rows, mask):
+    return a
     """ applies colmask 'mask' to matrix 'a' limited to 'rows' """
     # this can be probably optimized
     if sparse.isspmatrix_csr(a):
@@ -579,7 +581,7 @@ class SolverDistributed:
         self.A = None
         self.b = None
         self.comm = comm
-        self.convergence = 0.00001
+        self.convergence = 1e-6
         self.callback = None
         self.running = False
         self.i = 1
@@ -794,10 +796,13 @@ class SolverDistributed:
         self.Done()
 
     def testSolver2(self):
+        self.log('Using ' + str(self.comm.size) + ' nodes')
+        self.log('Convergence: ' + str(self.convergence))
         np.random.seed(int(time()))
         # set input files
         mapName = '../data/Map for crawledResults1.txt.txt' 
         mappedName = '../data/Mapped version of crawledResults1.txt.txt'
+        self.log('File: ' + mappedName)
         
         dt1 = datetime.now()
         if os.path.isfile('../data/checkpoint.txt'):
