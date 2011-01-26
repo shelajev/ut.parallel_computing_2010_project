@@ -70,12 +70,6 @@ OP_PREPARE_PAGERANK = tg()  # does pagerank preparations
 _OP_CIRCLE = tg()
 _OP_CIRCLE_DIR = tg()
 
-def colmask(a):
-    """ vector that contains col numbers for each column that contains values and
-        0 otherwise"""
-    z = mu.ValueColumns(a)
-    return z
-
 def applymask(a, rows, mask):
     """ applies colmask 'mask' to matrix 'a' limited to 'rows' """
     # this can be probably optimized
@@ -114,9 +108,6 @@ def applymask(a, rows, mask):
         mtx = sparse.spdiags(data, [0], s,s)
         at = (mtx.transpose() * a).tocsr()
     return at
-
-def str_td(td):
-    return str(td.seconds + td.microseconds/1e6)
 
 #################################
 # Calculator Node
@@ -170,12 +161,12 @@ class CalculatorNode:
         self.matrixes[r] = A
     
     def applyMask(self, A, mask):
-        pass
+        return applymask(A, self.rows, mask)
         
     def getMask(self, A):
         """ vector that contains col numbers for each column that contains values and
             0 otherwise"""
-        
+        # should do cacheing here
         z = mu.ValueColumns(A)
         return z
     
@@ -333,7 +324,7 @@ class CalculatorNode:
     def Mex(self, r, a, b):
         """ multiplies two matrices a and b, puts the result to r """
         A = self.get(a)
-        mask = colmask(A)
+        mask = self.getMask(A)
         B = self.fullMasked(b, mask)
         R = A * B
         self.set(r, R)

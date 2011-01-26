@@ -14,49 +14,76 @@ import scipy.sparse as sparse
 from numpy.random import randn, rand
 from mpi4py import MPI
 
+np.random.seed(int(time()))
+
 # Internal utilities
 import calculator
 import matrixreader as mr
 import matrixutils  as mu
 
-class BicgstabSolver:
+def str_td(td):
+    return str(td.seconds + td.microseconds/1e6)
+
+class PagerankSolver:
     
-    def __init__(self, comm):
+    def __init__(self, comm, mapFile, mappedFile):
+        self.mapFile = mapFile
+        self.mappedFile = mappedFile
+        self.checkpoint = './checkpoint'
+        
         self.A = None
         self.b = None
+        
         self.comm = comm
+        self.calculator = calculator.Calculator(self.comm)
+        
         self.convergence = 0.00001
-        self.callback = None
-        self.running = False
+        
         self.i = 1
+        self.running = False
+        self.foundSolution = False
     
     def Setup(self):
-        self.calculator = calculator.Calculator(self.comm, self.A.shape[0])
-        
+        self.calculator.Setup(self.A.shape[0])
+    
+    def Done(self):
+        self.calculator.Done()
+    
     def log(self, msg):
         print '       ', msg
     
     def Initialize(self):
-        self.log('initializing')
         h = self.calculator
+        
+        self.log('initializing')
+        
+        # column sums # must be done before tocsr()
+        colsum = np.ravel(self.A.sum(axis=0))
+        
+        self.A = self.A.tocsr()
+        self.Setup()
+        
+        self.b = sparse.csr_matrix(np.ones((self.A.shape[0],1))*1.0)
         
         # distribute data
         self.log('set A')
         h.Set('A', self.A)
         del self.A
 
-        self.log('bcast colsum')
-        h.Broadcast('colsum', self.colsum)
+        self.log('Broadcast colsum')
+        h.Broadcast('colsum', colsum)
 
         self.log('prepare PageRank')
         h.PreparePageRank('A', 'A', 'colsum')
 
         self.log('set b')
         h.Set('b', self.b)
+        
         self.log('create x')
         h.New('x', 1, 1.0)
         
         self.log('calculate : r = b - mex(A,x)')
+        
         # r = b - mex(A, x)
         h.Mex('Ax', 'A', 'x')
         h.Sub('r', 'b', 'Ax')
@@ -71,6 +98,15 @@ class BicgstabSolver:
         self.log('calculate : v = p = ->1')
         h.New('v', 1, 1.0)
         h.Move('p', 'v')
+    
+    def HasCheckpoint(self):
+        return os.path.isfile(self.checkpoint)
+    
+    def SaveCheckpoint(self):
+        self.Save(self.checkpoint)
+    
+    def LoadCheckpoint(self):
+        self.Load(self.checkpoint)
     
     def Load(self, filename):
         # load A, r, rho, w, v, p, x, r_hat, alpha as instance variables
@@ -108,7 +144,6 @@ class BicgstabSolver:
 
         h.Set('A', self.A)
         h.Broadcast('colsum', self.colsum)
-        #h.PreparePageRank('A', 'A', 'colsum')
         h.Set('b', self.b)
 
         h.Set('x', self.x.tocsr())        
@@ -122,7 +157,7 @@ class BicgstabSolver:
         # save to file
         h = self.calculator
         save = open(filename, "wb")   
-        self.log('Saving A')
+
         pickle.dump(h.Collect('A'), save)
         self.log('Saving colsum')
         pickle.dump(self.colsum, save)
@@ -155,9 +190,10 @@ class BicgstabSolver:
         w = self.w
         
         self.running = True
+        self.foundSolution = False
         while True:
             # sleep (2)
-            self.log('iteration %s' % self.i)
+            self.bicgstabCallback(self.i)
             
             rho_i = h.Dot('rho_i', 'r_hat', 'r')
             beta = (rho_i / rho) * (alpha / w)
@@ -203,18 +239,18 @@ class BicgstabSolver:
             h.Move('p', 'p_i')
             h.Move('x', 'x_i')
             
-            if s < convergence:
-                self.log('The right solution found!')
-                break
-            if self.i >= iterations:
-                self.log('Maximum number of iterations reached, convergence not reached. Saving...')
-                self.Save('../data/checkpoint.txt')
-                break
-            if self.callback != None:
-                self.callback(i)
             if not self.running:
-                self.Save('../data/checkpoint.txt')
+                self.foundSolution = False
                 break
+            
+            if s < convergence:
+                self.foundSolution = True
+                break
+            
+            if self.i >= iterations:
+                self.foundSolution = False
+                break
+            
             self.i += 1
             
         self.rho = rho
@@ -223,90 +259,81 @@ class BicgstabSolver:
     def getX(self):
         return self.calculator.Collect('x')
     
-    def Done(self):
-        self.calculator.Done()
-
-    def testSolver(self):
-        np.random.seed(int(time()))
-        s = self.comm.size * 10 + 3
-        self.A = np.asmatrix(rand(s,s))*20
-        self.b = np.asmatrix(rand(s,1))*20
-        self.Setup()
-        self.Initialize()
-        self.bicgstab(1000)
-        x = self.getX()
-        x_i = self.calculator.Collect('x')
-        z = self.A*x
-        self.log(sum(abs(z - self.b)))
-        self.Done()
-
-    def testSolver2(self):
-        np.random.seed(int(time()))
-        # set input files
-        mapName = 'data/Map for crawledResults1.txt.txt' 
-        mappedName = 'data/Mapped version of crawledResults1.txt.txt'
-        
+    def bicgstabCallback(self, i):
+        self.log('iteration %s' % i)
+    
+    def solve(self):        
         dt1 = datetime.now()
-        if os.path.isfile('checkpoint/checkpoint.txt'):
-            self.log('Checkpoint file exists, reading...')
-            self.Load('checkpoint/checkpoint.txt')
+        
+        if self.HasCheckpoint():
+            self.log('Checkpoint exists, continuing from checkpoint')
+            self.LoadCheckpoint()
             dt2 = datetime.now()
-            self.Distribute()
         else:
-            self.log('Checkpoint file does not exist, starting from the beginning...')
-            A = mr.ReadMatrix(mapName, mappedName)
-            dt2 = datetime.now()
-            self.colsum = np.ravel(A.sum(axis=0)) # column sums # must be done before tocsr()
-            self.A = A.tocsr()
+            self.log('Checkpoint does not exist, starting from the beginning...')
+            self.A = mr.ReadMatrix(self.mapFile, self.mappedFile)
             self.log(repr(self.A))
-            self.b = sparse.csr_matrix(np.ones((A.shape[0],1))*1.0)
-            self.log('s = %d' % A.shape[0])
-            self.Setup()
+            dt2 = datetime.now()
             self.Initialize()
         
         dt3 = datetime.now()
+        
         self.bicgstab(10)
+        self.SaveCheckpoint()
+        
+        if self.foundSolution:
+            self.log('Found solution.')
+        else:
+            self.log('Max iterations reached.')
+        
         dt4 = datetime.now()
+        
         x = self.getX()
-        x =x/x.sum()
+        
+        x = x / x.sum()
+        
         dt5 = datetime.now()
-        #self.log(x.todense()[3:10,:])
-        #z = self.A*x
-        #self.log(sum(abs(z.todense() - self.b.todense())))
+        
         self.Done()
-
+        
         # timings:
         self.log('TIMINGS:')
         self.log('reading input file: ' + str_td(dt2-dt1))
-        self.log('distribute values: ' + str_td(dt3-dt2))
+        self.log('distribute values : ' + str_td(dt3-dt2))
         self.log('BiCGStab: ' + str_td(dt4-dt3))
         self.log('collect x: ' + str_td(dt5-dt4))
         self.log('total: ' + str_td(dt5-dt1))
-
+        
         self.log('A.shape: ' + str(self.A.shape))
         self.log('x.shape: ' + str(x.shape))
         self.log('RageRank vector:')
         self.log(x)
 
-def saveCall(solver, arg2):
+def keyboardInputWait(solver, arg2):
     wait = raw_input('Press ENTER to save:\n')
     solver.log('Saving stuff...')
     solver.running = False
 
 def main():
+    mapFile = 'data/Map for crawledResults1.txt.txt' 
+    mappedFile = 'data/Mapped version of crawledResults1.txt.txt'
+    
     comm = MPI.COMM_WORLD
     if comm.rank == 0 :
-        s = BicgstabSolver(comm)
-        save = Thread(target=saveCall, args=(s, None))
-        save.start()
-        s.testSolver2()
+        s = PagerankSolver(comm, mapFile, mappedFile)
+        
+        inputWaiter = Thread(target=keyboardInputWait, args=(s, None))
+        inputWaiter.start()
+        
+        s.solve()
         s.log('Exiting...')
+        
+        MPI.Finalize()
         os._exit(0)
     else:
         n = calculator.CalculatorNode(comm)
         n.run()
-    
-    MPI.Finalize()
+        MPI.Finalize()
     
 if __name__ == "__main__":
     main()
