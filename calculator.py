@@ -99,6 +99,7 @@ def applymask(a, rows, mask):
         indices = np.concatenate(indices)
         at = sparse.csr_matrix((data,indices,indptr), dtype=a.dtype, shape=a.shape)
     else:
+        print ":("
         s = a.shape[0]
         data = np.zeros(s)
         for i in mask:
