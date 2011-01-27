@@ -1,14 +1,83 @@
-=============================
-Pagerank Solution in Python
-=============================
-Project in Parallel Computing
------------------------------
+====================================
+Pagerank Solution in Python with MPI
+====================================
+
+
+Adding a new operation to Calculator
+------------------------------------
+
+The basic structure of the Calculator and
+CalculatorNode-s is. There is one Calculator
+instance and multiple CalculatorNode-s.
+
+Calculators purpose is to pass commands to
+CalculatorNodes and distribute and collect data.
+
+Each CalculatorNode holds a partial matrix (row wise).
+This means that each Node holds specific rows, this 
+is determined in the Setup of Calculator.
+
+First step for setting up a new operation is to
+add a new tag in the beginning of calculator.py.
+Let's add OP_MAGIC to complex commands.
+
+The tg() function ensures that each command gets
+an unique id.
+
+Next step is to add appropriate function to Calculator.
+We will add this to the end of the class::
+
+    def Magic(self, r, a, s):
+        """ Does some magic with a and s, stores the result in r """
+        ras = self.ras(r, a, s)
+        self.Do(ras, OP_MAGIC)
+
+The convention for commands that generate a new matrix or result is to
+give a new place to store the result. This means we get greater flexibility
+how we can use the commands.
+
+"self.ras(r,a,s)" command converts matrix names 'r', 'a' to ids. This is just a convenience
+function. This also checks whether 'a' exists already. There are some similar commands: ras - result, matrix, scalar; rab - result, matrix, matrix; ra - result, matrix.
+
+"self.Do()" sends the command to all Nodes.
+
+Now we need to capture the command on the Nodes.
+
+First we'll add redirection for this command in CalculatorNode.loop::
+
+    ops = {
+        ...
+        OP_DOT  : self._dot,
+        OP_MEX  : self._mex,
+        # complex commands
+        OP_PREPARE_PAGERANK : self._prepare_pagerank,
+        OP_MAGIC : self._magic,
+    }
+
+This translates the tag into a function "_magic". Also add this function just before
+the header for main loops::
+
+    def _magic(self, data):
+        r, a, b = data
+        self.Magic(r, a, b)
+
+This "_" prefixed functions unpack the input data and translate them to their respective values. Now we also need to add "Magic" function::
+
+    def Magic(self, result, a, value):
+        A = self.get(a)
+        A = (A + value) * value
+        self.set(r, A)
+
+The "self.get(a)" gets the respective partial matrix from matrix list. 
+Then we do some magic calculations with it and store the result with "self.set(r, A)".
+
+Now we can call the new computation.
 
 Running in Ubuntu
-=================
+-----------------
 
 Setting up python and mpi
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Commands should be run in superuser mode, this can be done via::
     
@@ -39,7 +108,7 @@ Install mpi4py and necessary libraries::
 	pip install mpi4py
 
 Downloading source
-------------------
+~~~~~~~~~~~~~~~~~~
 
 Install git and necessary libraries::
 
