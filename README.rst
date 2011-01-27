@@ -102,6 +102,8 @@ to run into a deadlock.
 Running in Ubuntu
 -----------------
 
+This is how to run it in a clean Ubuntu environment.
+
 Setting up Python and MPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -122,7 +124,7 @@ Install an implementation of MPI-2::
 Make file ~/.mpd.conf with some secret word:: 
 	
 	echo "MPD_SECRETWORD=${RANDOM}z${RANDOM}z${RANDOM}" > $HOME/.mpd.conf
-	chmod 600 $HOME/.mpd.confpython-numpy python-scipy
+	chmod 600 $HOME/.mpd.conf
 
 Install pip and setuptools, this helps to install python libraries easily::
 		
