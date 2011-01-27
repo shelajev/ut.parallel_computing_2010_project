@@ -19,7 +19,6 @@ np.random.seed(int(time()))
 # Internal utilities
 import calculator
 import matrixreader as mr
-import matrixutils  as mu
 
 def str_td(td):
     return str(td.seconds + td.microseconds/1e6)
@@ -299,7 +298,7 @@ class PagerankSolver:
         self.log(x)
 
 def keyboardInputWait(solver, arg2):
-    wait = raw_input('Press ENTER to save:\n')
+    raw_input('Press ENTER to save:\n')
     solver.log('Saving stuff...')
     solver.running = False
 

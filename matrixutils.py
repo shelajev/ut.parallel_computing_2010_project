@@ -38,7 +38,6 @@ def SelectRows(A, rows, mask):
         indices = []
         data = []
         
-        lastpos=0
         lastt=0
         count = 0
         for i in mask:
@@ -57,7 +56,7 @@ def SelectRows(A, rows, mask):
         indptr[lastt+1:len(indptr)] = count
         data = np.concatenate(data)
         indices = np.concatenate(indices)
-        at = sparse.csr_matrix((data,indices,indptr), dtype=A.dtype, shape=A.shape)
+        Amasked = sparse.csr_matrix((data,indices,indptr), dtype=A.dtype, shape=A.shape)
     else:
         s = A.shape[0]
         data = np.zeros(s)
@@ -66,6 +65,6 @@ def SelectRows(A, rows, mask):
                 t = i - rows[0]
                 data[t] = 1.0
         mtx = sparse.spdiags(data, [0], s,s)
-        at = (mtx.transpose() * a).tocsr()
-    return at
+        Amasked = (mtx.transpose() * A).tocsr()
+    return Amasked
 

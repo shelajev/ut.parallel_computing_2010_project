@@ -6,7 +6,6 @@ import os
 from threading import Thread
 from time import time, sleep
 from datetime import datetime
-import pickle
 
 # Libraries
 import numpy as np
@@ -14,7 +13,6 @@ import scipy.sparse as sparse
 from mpi4py import MPI
 
 # Internal utilities
-import matrixreader as mr
 import matrixutils  as mu
 
 ####################
@@ -145,7 +143,6 @@ class CalculatorNode:
         """ collect full matrix """
         mine = self.matrixes[a]
         rows = self.rows
-        height = self.height
         
         send = (rows,mine)
         coll = [send]
@@ -163,7 +160,6 @@ class CalculatorNode:
         """ collect full matrix with a specified column mask"""
         mine = self.matrixes[a]
         rows = self.rows
-        height = self.height
         
         send = (self.id, mask)
         coll = [(rows,mine)]
@@ -648,7 +644,7 @@ class Calculator:
     def Del(self, name):
         """ deletes matrix """
         if self.matrixes.has_key(name):
-            a = self.getId(r, False)
+            a = self.getId(name, False)
             del self.matrixes[name]
             self.Do(a, OP_DEL)
     
