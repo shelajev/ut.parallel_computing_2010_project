@@ -36,7 +36,7 @@ class PagerankSolver:
         self.comm = comm
         self.calculator = calculator.Calculator(self.comm)
         
-        self.convergence = 0.00001
+        self.convergence = 1e-6
         
         self.i = 1
         self.running = False
