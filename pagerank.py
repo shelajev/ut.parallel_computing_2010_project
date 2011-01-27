@@ -303,8 +303,8 @@ def keyboardInputWait(solver, arg2):
     solver.running = False
 
 def main():
-    mapFile = 'data/Map for crawledResults0010.txt.txt' 
-    mappedFile = 'data/Mapped version of crawledResults0010.txt.txt'
+    mapFile = 'data/Map for crawledResults1.txt.txt' 
+    mappedFile = 'data/Mapped version of crawledResults1.txt.txt'
     
     comm = MPI.COMM_WORLD
     if comm.rank == 0 :
