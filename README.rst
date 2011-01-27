@@ -6,6 +6,9 @@ Pagerank Solution in Python with MPI
 Adding a new operation to Calculator
 ------------------------------------
 
+Operating with partial matrix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The basic structure of the Calculator and
 CalculatorNode-s is. There is one Calculator
 instance and multiple CalculatorNode-s.
@@ -71,12 +74,35 @@ This "_" prefixed functions unpack the input data and translate them to their re
 The "self.get(a)" gets the respective partial matrix from matrix list. 
 Then we do some magic calculations with it and store the result with "self.set(r, A)".
 
-Now we can call the new computation.
+Now we can execute the new computation.
+
+Communicating with other nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's also add some internal node calculation here.
+
+Add a new internal operation tag "_OP_MAGIC". 
+Also let's modify Magic function::
+
+    def Magic(self, result, a, value):
+        A = self.get(a)
+        A = A + value
+        value = value + A[0,0]
+        newvalue = self.comm.sendrecv( value, self.left,  _OP_MAGIC,
+                                        None, self.right, _OP_MAGIC )
+        A = A * newvalue
+        self.set(r, A)
+        
+Nodes have been automatically setup on a circle and "self.left", "self.right" store
+the appropriate neighbor node ids. 
+We have to use sendrecv or non blocking calls as we don't want our program
+to run into a deadlock.
+
 
 Running in Ubuntu
 -----------------
 
-Setting up python and mpi
+Setting up Python and MPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Commands should be run in superuser mode, this can be done via::
