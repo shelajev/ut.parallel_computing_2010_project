@@ -28,7 +28,7 @@ class PagerankSolver:
     def __init__(self, comm, mapFile, mappedFile):
         self.mapFile = mapFile
         self.mappedFile = mappedFile
-        self.checkpoint = 'data/checkpoint'
+        self.checkpoint = 'checkpoint'
         
         self.A = None
         self.b = None
@@ -267,7 +267,7 @@ class PagerankSolver:
         dt3 = datetime.now()
         
         self.bicgstab(10)
-        self.SaveCheckpoint()
+        #self.SaveCheckpoint()
         
         if self.foundSolution:
             self.log('Found solution.')
@@ -303,8 +303,8 @@ def keyboardInputWait(solver, arg2):
     solver.running = False
 
 def main():
-    mapFile = 'data/Map for crawledResults5.txt.txt' 
-    mappedFile = 'data/Mapped version of crawledResults5.txt.txt'
+    mapFile = 'data/Map for crawledResults0010.txt.txt' 
+    mappedFile = 'data/Mapped version of crawledResults0010.txt.txt'
     
     comm = MPI.COMM_WORLD
     if comm.rank == 0 :

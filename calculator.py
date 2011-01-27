@@ -25,9 +25,6 @@ def tg():
     _last_tg += 1
     return _last_tg - 1
 
-# tag dictionary
-T={}
-
 #####
 # SETUP
 # these tag values are used for initial setup
@@ -523,7 +520,7 @@ class Calculator:
             self.rows[i] = rows
             b = rows[1]
             left -= count
-            self.Send(rows, dest=i, tag=T_ROWS)
+            self.comm.send(rows, dest=i, tag=T_ROWS)
         
         # send (left, right) to nodes
         for i in range(1, self.comm.size):
@@ -531,7 +528,7 @@ class Calculator:
             if left == 0: left = self.comm.size - 1
             right = (i + 1) % self.comm.size
             if right == 0: right = 1
-            self.Send((left,right), dest=i, tag=T_SIBLINGS)
+            self.comm.send((left,right), dest=i, tag=T_SIBLINGS)
         
         # send setup done
         self.Done()
@@ -609,7 +606,7 @@ class Calculator:
             rows = self.rows[i]
             s = rows[0]
             e = rows[1]
-            self.Send((a, A[s:e,:]), i, OP_SET)
+            self.comm.send((a, A[s:e,:]), i, OP_SET)
         
     def Collect(self, r):
         """ collects matrix r from the nodes """
