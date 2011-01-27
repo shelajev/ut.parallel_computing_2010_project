@@ -95,10 +95,10 @@ one master node for sending the commands to the nodes.
 The matrices are split rows wise. This means one node gets the top part
 another the middle and the last the bottom part::
 
-     _______                                  _______
-    |       |                                [___A1__]
-    |   A   |   --- Calculator.Set(A) --->   [___A2__]
-    |_______|                                [___A3__]
+     ______                            ______                              ______ 
+    |      |                          [__A1__]                            |      |
+    |  A   |  -- calc.Set('A',A) ->   [__A2__]  -- calc.Collect('A')  ->  |  A   |
+    |______|                          [__A3__]                            |______|
 
 Most simpler calculations can be done with partial matrices::
 
