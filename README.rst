@@ -2,6 +2,128 @@
 Pagerank Solution in Python with MPI
 ====================================
 
+.. contents::
+
+Running in Ubuntu
+-----------------
+
+This is how to run it in a clean Ubuntu environment.
+
+Setting up Python and MPI
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Commands should be run in superuser mode, this can be done via::
+    
+    sudo do_something
+    
+    su -c 'do_something'
+
+Install python with development headers, if they're not installed already::
+    
+    sudo install python2.6 python2.6-dev
+
+Install an implementation of MPI-2::
+	
+	sudo install mpich2
+
+Make file ~/.mpd.conf with some secret word:: 
+	
+	echo "MPD_SECRETWORD=${RANDOM}z${RANDOM}z${RANDOM}" > $HOME/.mpd.conf
+	chmod 600 $HOME/.mpd.conf
+
+Install pip and setuptools, this helps to install python libraries easily::
+		
+    sudo apt-get install python-pip python-setuptools
+        
+Install mpi4py and necessary libraries::
+
+    sudo apt-get install libssl-dev
+	pip install mpi4py
+
+Downloading source
+~~~~~~~~~~~~~~~~~~
+
+Install git and necessary libraries::
+
+    sudo apt-get install git-core python-numpy python-scipy
+
+Get the source::
+
+    git clone git://github.com/shelajev/ut.parallel_computing_2010_project_newgoogle_py.git pagerank
+
+Run it::
+
+    cd pagerank
+    mpirun -np 4 ./pagerank.py
+    
+    # if it complains about mpd not running, then run
+    mpd --daemon
+
+
+Tips for running on a cluster
+-----------------------------
+
+Things that you should keep in mind.
+
+PATH
+~~~~
+
+The PATH should be the same on every node.
+For example if you run this with mpirun on a cluster and your environment setup is 
+done in a startup script - that script might not run. This means a different
+version of python could be run or different versions of libraries are loaded.
+There's a check for python version in pagerank.py, that's really not necessary
+as this should run with newer versions of python as well, but it ensures that
+the same version of python will be run on each node.
+
+Depending on which mpirun there are ways to ensure proper PATH setup::
+
+    # for MPICH2 mpirun
+    mpirun -np 8 -envlist PATH ./pagerank.py
+    
+    # for openmpi mpirun, "-x" exports a single environment variable
+    mpirun -np 8 -x PATH ./pagerank.py
+    
+
+Description of Calculator
+-------------------------
+
+Calculator is a general purpose same height matrix calculator running
+on top of MPI. There are multiple nodes for doing the calculation and
+one master node for sending the commands to the nodes.
+
+The matrices are split rows wise. This means one node gets the top part
+another the middle and the last the bottom part::
+
+     _______                                  _______
+    |       |                                [___A1__]
+    |   A   |   --- Calculator.Set(A) --->   [___A2__]
+    |_______|                                [___A3__]
+
+Most simpler calculations can be done with partial matrices::
+
+     _______      _______       _________
+    [_A1____]    [_B1____]     [_A1_+_B1_]
+    [_A2____] +- [_B2____]  =  [_A2_+_B2_]
+    [_A3____]    [_B3____]     [_A3_+_B3_]
+
+
+For multiplication the matrix B must be collected on one side::
+
+     _______      _______                   ________
+    [_A1____]    [_B1____]     [A1] * B    [_A1_*_B_]
+    [_A2____] *  [_B2____]  =  [A2] * B  = [_A2_*_B_]
+    [_A3____]    [_B3____]     [A3] * B    [_A3_*_B_]
+
+There is an optimization for sending that content to the specific
+node that it only needs (x- shows where A contains value )::
+
+     _______      _______                             ________
+    [_xx____]    [_B1____]     [A1] * ( B1 )      =  [_A1_*_B_]
+    [___xx__] *  [_B2____]  =  [A2] * ( B2 )      =  [_A2_*_B_]
+    [_x____x]    [_B3____]     [A3] * ( B1 & B3 ) =  [_A3_*_B_]
+
+This saves us some communication.
 
 Adding a new operation to Calculator
 ------------------------------------
@@ -98,84 +220,3 @@ the appropriate neighbor node ids.
 We have to use sendrecv or non blocking calls as we don't want our program
 to run into a deadlock.
 
-
-Running in Ubuntu
------------------
-
-This is how to run it in a clean Ubuntu environment.
-
-Setting up Python and MPI
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Commands should be run in superuser mode, this can be done via::
-    
-    sudo do_something
-    
-    su -c 'do_something'
-
-Install python with development headers, if they're not installed already::
-    
-    sudo install python2.6 python2.6-dev
-
-Install an implementation of MPI-2::
-	
-	sudo install mpich2
-
-Make file ~/.mpd.conf with some secret word:: 
-	
-	echo "MPD_SECRETWORD=${RANDOM}z${RANDOM}z${RANDOM}" > $HOME/.mpd.conf
-	chmod 600 $HOME/.mpd.conf
-
-Install pip and setuptools, this helps to install python libraries easily::
-		
-    sudo apt-get install python-pip python-setuptools
-        
-Install mpi4py and necessary libraries::
-
-    sudo apt-get install libssl-dev
-	pip install mpi4py
-
-Downloading source
-~~~~~~~~~~~~~~~~~~
-
-Install git and necessary libraries::
-
-    sudo apt-get install git-core python-numpy python-scipy
-
-Get the source::
-
-    git clone git://github.com/shelajev/ut.parallel_computing_2010_project_newgoogle_py.git pagerank
-
-Run it::
-
-    cd pagerank
-    mpirun -np 4 ./pagerank.py
-    
-    # if it complains about mpd not running, then run
-    mpd --daemon
-
-
-Tips for running on a cluster
------------------------------
-
-Things that you should keep in mind.
-
-PATH
-~~~~
-
-The PATH should be the same on every node.
-For example if you run this with mpirun on a cluster and your environment setup is 
-done in a startup script - that script might not run. This means a different
-version of python could be run or different versions of libraries are loaded.
-There's a check for python version in pagerank.py, that's really not necessary
-as this should run with newer versions of python as well, but it ensures that
-the same version of python will be run on each node.
-
-Depending on which mpirun there are ways to ensure proper PATH setup::
-
-    # for MPICH2 mpirun
-    mpirun -np 8 -envlist PATH ./pagerank.py
-    
-    # for openmpi mpirun, "-x" exports a single environment variable
-    mpirun -np 8 -x PATH ./pagerank.py
-    
