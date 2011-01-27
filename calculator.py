@@ -27,6 +27,9 @@ def tg():
     _last_tg += 1
     return _last_tg - 1
 
+# tag dictionary
+T={}
+
 #####
 # SETUP
 # these tag values are used for initial setup
@@ -43,8 +46,8 @@ T_MASTER   = tg()  # the master node rank
 # These are the calculation capabilities of the calculator
 
 # distribution
-OP_SYNC     = tg()  # this synchronizes all nodes in MPI
-OP_SET     = tg()  # distributes a matrix to the nodes
+OP_SYNC        = tg()  # this synchronizes all nodes in MPI
+OP_SET         = tg()  # distributes a matrix to the nodes
 OP_BROADCAST   = tg()  # broadcasts data (not split) to all of the nodes
 OP_COLLECT     = tg()  # collects the matrix on the master calculator
 OP_COLLECT_SUM = tg()  # collects the total sum of values in the matrix on the master calculator
@@ -69,45 +72,6 @@ OP_PREPARE_PAGERANK = tg()  # does pagerank preparations
 # node internal operations
 _OP_CIRCLE = tg()
 _OP_CIRCLE_DIR = tg()
-
-def applymask(a, rows, mask):
-    """ applies colmask 'mask' to matrix 'a' limited to 'rows' """
-    # this can be probably optimized
-    if sparse.isspmatrix_csr(a):
-        indptr = np.zeros(a.shape[0] + 1, dtype=int)
-        indices = []
-        data = []
-        
-        lastpos=0
-        lastt=0
-        count = 0
-        for i in mask:
-            if (i >= rows[0]) and (i < rows[1]):
-                t = i - rows[0]
-                # set rows between to zero
-                indptr[lastt+1:t+1] = count
-                # find indices/data range
-                indstart, indend = a.indptr[t], a.indptr[t+1]
-                # copy col_indices and data
-                indices.append(a.indices[indstart:indend])
-                data.append(a.data[indstart:indend])
-                # set end
-                count += indend - indstart
-                lastt = t
-        indptr[lastt+1:len(indptr)] = count
-        data = np.concatenate(data)
-        indices = np.concatenate(indices)
-        at = sparse.csr_matrix((data,indices,indptr), dtype=a.dtype, shape=a.shape)
-    else:
-        s = a.shape[0]
-        data = np.zeros(s)
-        for i in mask:
-            if (i >= rows[0]) and (i < rows[1]):
-                t = i - rows[0]
-                data[t] = 1.0
-        mtx = sparse.spdiags(data, [0], s,s)
-        at = (mtx.transpose() * a).tocsr()
-    return at
 
 #################################
 # Calculator Node
@@ -163,20 +127,18 @@ class CalculatorNode:
         if self.masks.has_key(r):
             del self.masks[r]
     
-    def getMasked(self, a, mask):
-        A = self.get(a)
-        return applymask(A, self.rows, mask)
+    def applyMask(self, A, mask):
+        """ selects only those rows that are determined by the mask """
+        return mu.SelectRows(A, self.rows, mask)
         
     def getMask(self, a):
-        """ vector that contains col numbers for each column that contains values and
-            0 otherwise"""
+        """ vector that contains col numbers for each column that contains values"""
         if self.masks.has_key(a):
             z = self.masks[a]
         else:
             A = self.get(a)
             z = mu.ValueColumns(A)
             self.masks[a] = z
-        # should do cacheing here
         return z
     
     def full(self, a):
@@ -212,7 +174,7 @@ class CalculatorNode:
                                       None, self.right, _OP_CIRCLE)
             send = data
             # apply 'mask' to this nodes data and send it to 'id'
-            masked  = applymask(mine, rows, data[1])
+            masked  = self.applyMask(mine, data[1])
             mtx = self.comm.sendrecv((rows, masked), data[0], _OP_CIRCLE_DIR,
                                       None, MPI.ANY_SOURCE , _OP_CIRCLE_DIR)
             coll.append(mtx)
@@ -576,7 +538,7 @@ class Calculator:
             self.Send((left,right), dest=i, tag=T_SIBLINGS)
         
         # send setup done
-        self.Do(0, T_DONE)
+        self.Done()
 
     def Done(self):
         """ Kills all the nodes """
@@ -637,6 +599,9 @@ class Calculator:
         """ sends data to dest with tag """
         self.comm.send(data, dest=dest, tag=tag)
         #self.comm.isend(data, dest=dest, tag=tag)
+    
+    def Recv(self, data, source, tag):
+        return self.comm.recv(data, source, tag)
 
     # distribution
     
@@ -657,7 +622,7 @@ class Calculator:
         
         coll = []
         for _ in range(1, self.comm.size):
-            tup = self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT)
+            tup = self.Recv(None, MPI.ANY_SOURCE, OP_COLLECT)
             coll.append(tup)
         
         t = mu.ListToMatrix(coll)        
@@ -669,7 +634,7 @@ class Calculator:
         self.Do(a, OP_COLLECT_SUM)
         t = 0.0
         for _ in range(1, self.comm.size):
-            t += self.comm.recv(None, MPI.ANY_SOURCE, OP_COLLECT_SUM)
+            t += self.Recv(None, MPI.ANY_SOURCE, OP_COLLECT_SUM)
         return t
     
     # matrix operations

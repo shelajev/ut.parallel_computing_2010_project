@@ -68,15 +68,15 @@ class PagerankSolver:
         # distribute data
         self.log('set A')
         h.Set('A', self.A)
-
-        self.log('Broadcast colsum')
-        h.Broadcast('colsum', colsum)
-
-        self.log('prepare PageRank')
-        h.PreparePageRank('A', 'A', 'colsum')
-
+        
         self.log('set b')
         h.Set('b', self.b)
+        
+        self.log('Broadcast colsum')
+        h.Broadcast('colsum', colsum)
+        
+        self.log('prepare PageRank')
+        h.PreparePageRank('A', 'A', 'colsum')
         
         self.log('create x')
         h.New('x', 1, 1.0)
@@ -304,15 +304,15 @@ def keyboardInputWait(solver, arg2):
     solver.running = False
 
 def main():
-    mapFile = 'data/Map for crawledResults1.txt.txt' 
-    mappedFile = 'data/Mapped version of crawledResults1.txt.txt'
+    mapFile = 'data/Map for crawledResults5.txt.txt' 
+    mappedFile = 'data/Mapped version of crawledResults5.txt.txt'
     
     comm = MPI.COMM_WORLD
     if comm.rank == 0 :
         s = PagerankSolver(comm, mapFile, mappedFile)
         
-        inputWaiter = Thread(target=keyboardInputWait, args=(s, None))
-        inputWaiter.start()
+        #inputWaiter = Thread(target=keyboardInputWait, args=(s, None))
+        #inputWaiter.start()
         
         s.solve()
         s.log('Exiting...')
