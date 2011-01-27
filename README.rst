@@ -153,4 +153,29 @@ Run it::
     
     # if it complains about mpd not running, then run
     mpd --daemon
+
+
+Tips for running on a cluster
+-----------------------------
+
+Things that you should keep in mind.
+
+PATH
+~~~~
+
+The PATH should be the same on every node.
+For example if you run this with mpirun on a cluster and your environment setup is 
+done in a startup script - that script might not run. This means a different
+version of python could be run or different versions of libraries are loaded.
+There's a check for python version in pagerank.py, that's really not necessary
+as this should run with newer versions of python as well, but it ensures that
+the same version of python will be run on each node.
+
+Depending on which mpirun there are ways to ensure proper PATH setup::
+
+    # for MPICH2 mpirun
+    mpirun -np 8 -envlist PATH ./pagerank.py
+    
+    # for openmpi mpirun, "-x" exports a single environment variable
+    mpirun -np 8 -x PATH ./pagerank.py
     
